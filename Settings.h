@@ -5,8 +5,12 @@
 
 class Settings {
 public:
-    int16_t height{ 600 };
-    int16_t width{ 400 };
+    uint16_t height{ 600 };
+    uint16_t width{ 400 };
+    uint8_t fps{ 60 };
+
+    bool keyb_style = true;//default wasd none-default up dwn lt rt
+
 };
 
 #endif // SETTINGS_H

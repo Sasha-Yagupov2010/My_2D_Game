@@ -26,5 +26,8 @@
     <ClInclude Include="Player.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="Mytext.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
