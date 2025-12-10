@@ -29,5 +29,8 @@
     <ClInclude Include="Mytext.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="MyButton.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

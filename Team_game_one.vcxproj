@@ -134,6 +134,7 @@
     <ClCompile Include="Team_game_one.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MyButton.h" />
     <ClInclude Include="Mytext.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Settings.h" />

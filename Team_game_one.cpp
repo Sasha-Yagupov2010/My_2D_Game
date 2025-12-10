@@ -8,43 +8,7 @@ using namespace sf;
 #include "Settings.h"
 #include "Player.h"
 #include "Mytext.h"
-
-/*
-class Button {
-    Button::Button(x,y,syze)
-private:
-    uint16_t x = 0;
-    uint16_t y = 0;
-
-    int size_x = 0;
-    int size_y = 0;
-
-    bool visible = false;
-
-public:
-    void show() { visible = true; }
-
-    void set_pos(uint16_t x1, uint16_t y1)
-    {
-        x = x1;
-        y = y1;
-    }
-
-    void set_resolution(int size_x1, int size_y1)
-    {
-        size_x = size_x1;
-        size_y = size_y1;
-    }
-
-    bool isPressed() {
-        return true;
-
-        return false;
-    }
-
-};
-*/
-
+#include "MyButton.h"
 
 int main()
 {
@@ -58,15 +22,16 @@ int main()
     window.setVerticalSyncEnabled(true);
     window.setFramerateLimit(mysettings.fps);
 
-    RectangleShape button(Vector2f(200, 50));
-    button.setFillColor(Color::Blue);
-    button.setPosition((mysettings.width - 200) / 2, (mysettings.height - 50) / 2); // по центру
-
-
+  
     //текст тестирование
     MyText myText("myfonts/arialmt.ttf", "Play");
     myText.setVisible(true);
     myText.setPosition(100.f, 50.f);
+
+    //кнопочка
+    MyButton button(200, 50, Color::Blue, (mysettings.width - 200) / 2, (mysettings.height - 50) / 2);
+    button.setVisible(true);
+    
     
 
     bool gameStarted = false;
@@ -79,13 +44,13 @@ int main()
             if (event.type == Event::Closed)
                 window.close();
          }
-
+        
         if (event.type == Event::MouseButtonPressed)
         {
             if (event.mouseButton.button == Mouse::Left)
             {
                 Vector2i mousePos = Mouse::getPosition(window);
-                if (button.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                if (button.get_shape().getGlobalBounds().contains(mousePos.x, mousePos.y))
                 {
                     // Нажата кнопка "Играть"
                     gameStarted = true;
@@ -98,7 +63,8 @@ int main()
         if (!gameStarted)
         {
             // Рисуем кнопку "Играть"
-            window.draw(button);
+
+            button.draw(window);
             myText.draw(window);
         }
         else
