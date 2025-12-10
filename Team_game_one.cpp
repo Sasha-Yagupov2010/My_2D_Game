@@ -1,9 +1,16 @@
 ﻿#include <SFML/Graphics.hpp>
+#include "Settings.h"
+#include "Player.h"
+
+
 
 int main()
 {
+    Settings mysettings;
+    mysettings.height = 600; // Обратите внимание, что ваши поля - lower case
+    mysettings.width = 400;
 
-    sf::RenderWindow window(sf::VideoMode(600, 400), L"Иллюзия", sf::Style::Default);
+    sf::RenderWindow window(sf::VideoMode(mysettings.height, mysettings.width), L"Game", sf::Style::Default);
 
     window.setVerticalSyncEnabled(true);
     sf::Vector2f a1{ 100,100 };
