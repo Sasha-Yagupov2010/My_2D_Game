@@ -53,14 +53,14 @@ void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 }
 
 void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
-    
-    CircleShape circle(15.f);
+    float size = player.size; //radius
+    CircleShape circle(size/2);
     circle.setPosition(player.x_pos, player.y_pos);
 
     // Устанавливаем цвет заливки
     circle.setFillColor(Color::Red);
     circle.setOutlineColor(Color::White);
-    circle.setOutlineThickness(2.f);
+    circle.setOutlineThickness(size/14);
 
     bool gameRun = true;
     uint8_t speed = 5;
@@ -77,7 +77,7 @@ void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
         }
         if (Keyboard::isKeyPressed(Keyboard::Right)) {
             float newX = player.x_pos + speed;
-            if (newX <= mysettings.width) {
+            if (newX <= mysettings.width - size) {
                 player.move(speed, 0);
                 circle.move(speed, 0);
             }
@@ -91,7 +91,7 @@ void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
         }
         if (Keyboard::isKeyPressed(Keyboard::Down)) {
             float newY = player.y_pos + speed;
-            if (newY <= mysettings.height) {
+            if (newY <= mysettings.height - size) {
                 player.move(0, speed);
                 circle.move(0, speed);
             }
