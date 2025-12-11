@@ -1,8 +1,6 @@
-﻿#include <iostream>
+﻿#include <SFML/Graphics.hpp>
+#include <iostream>
 using namespace std;
-
-
-#include <SFML/Graphics.hpp>
 using namespace sf;
 
 #include "Settings.h"
@@ -10,6 +8,7 @@ using namespace sf;
 #include "Mytext.h"
 #include "MyButton.h"
 #include "GameMap.h"
+#include "Flag.h"
 
 void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 {
@@ -54,22 +53,38 @@ void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 
 }
 
-void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
+void singleGame(RenderWindow& window, Settings& mysettings) {
+    //для каждой игры свой игрок и 
+    Player player;
+    Flag flag;
 
     uint16_t percent_of_resizing = (mysettings.height / 400 * 100);
+
+    // игрок
     player.size = percent_of_resizing *player.size/100;
     player.speed = percent_of_resizing * player.speed / 100;
-    float size = player.size; 
+    //float size = player.size; 
 
-
-    CircleShape circle(size / 2);
+    CircleShape player_circle(player.size / 2);
     player.set_position(0, mysettings.height/2);
-    circle.setPosition(player.x_pos, player.y_pos);
 
-    // Устанавливаем цвет заливки
-    circle.setFillColor(Color::Red);
-    circle.setOutlineColor(Color::White);
-    circle.setOutlineThickness(size / 14);
+    player_circle.setPosition(player.x_pos, player.y_pos);
+    player_circle.setFillColor(Color::Red);
+    player_circle.setOutlineColor(Color::White);
+    player_circle.setOutlineThickness(player.size / 14);
+
+
+    // флажок
+    flag.size = percent_of_resizing * flag.size / 100;
+
+    CircleShape flag_circle(flag.size / 2);
+    flag.set_position(player.x_pos, player.y_pos);
+
+    flag_circle.setPosition(flag.x_pos, flag.y_pos);
+    flag_circle.setFillColor(Color::Green);
+    flag_circle.setOutlineColor(Color::Red);
+    flag_circle.setOutlineThickness(flag.size/7);
+
 
     // Автоматический расчет размера тайлов относительно экрана
     const int mapWidthTiles = 24;   // количество тайлов по ширине
@@ -95,29 +110,29 @@ void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
 
         if (Keyboard::isKeyPressed(Keyboard::Left)) {
             player.move(-speed, 0);
-            circle.move(-speed, 0);
+            player_circle.move(-speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::Right)) {
             player.move(speed, 0);
-            circle.move(speed, 0);
+            player_circle.move(speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::Up)) {
             player.move(0, -speed);
-            circle.move(0, -speed);
+            player_circle.move(0, -speed);
         }
         if (Keyboard::isKeyPressed(Keyboard::Down)) {
             player.move(0, speed);
-            circle.move(0, speed);
+            player_circle.move(0, speed);
         }
 
         // Проверяем коллизии
-        if (gameMap.checkCollision(player.x_pos, player.y_pos, size) ||
-            player.x_pos < 0 || player.x_pos > mysettings.width - size ||
-            player.y_pos < 0 || player.y_pos > mysettings.height - size) {
+        if (gameMap.checkCollision(player.x_pos, player.y_pos, player.size) ||
+            player.x_pos < 0 || player.x_pos > mysettings.width - player.size ||
+            player.y_pos < 0 || player.y_pos > mysettings.height - player.size) {
 
             // Откатываем позицию
             player.set_position(oldX, oldY);
-            circle.setPosition(oldX, oldY);
+            player_circle.setPosition(oldX, oldY);
         }
 
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
@@ -129,7 +144,8 @@ void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
 
 
         gameMap.draw(window);
-        window.draw(circle);
+        window.draw(player_circle);
+        window.draw(flag_circle);
 
         window.display();
     }
@@ -143,7 +159,7 @@ int main()
     mysettings.width = 1200;
     mysettings.fps = 60;
 
-    Player player;
+
 
     RenderWindow window( VideoMode(mysettings.width, mysettings.height), L"Game",  Style::Default);
 
@@ -165,7 +181,7 @@ int main()
 
         //menu
         if (gameStarted) {
-            singleGame(window, mysettings,player); 
+            singleGame(window, mysettings); 
             gameStarted = false;
         }
         menu(window, mysettings, gameStarted);
