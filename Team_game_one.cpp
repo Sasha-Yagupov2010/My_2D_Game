@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include <Windows.h>
+
 using namespace std;
 using namespace sf;
 
@@ -502,6 +504,10 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
 int main()
 {
     /* настройки проекта */
+
+    SetConsoleCP(1251);       // Установить кодовую страницу ввода
+    SetConsoleOutputCP(1251); // Установить кодовую страницу вывода
+
     Settings mysettings;
     mysettings.height = 800;
     mysettings.width = 1200;
