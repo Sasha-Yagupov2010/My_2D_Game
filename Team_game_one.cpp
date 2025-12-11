@@ -193,17 +193,9 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
             player.x_pos < 0 || player.x_pos > mysettings.width - player.size ||
             player.y_pos < 0 || player.y_pos > mysettings.height - player.size) {
 
-  
-                // Пробуем откатить только по X
-                player.set_position(oldX, player.y_pos);
-                player_circle.setPosition(oldX, player.y_pos);
-
-                // Если все еще есть коллизия, откатываем по Y
-                if (gameMap.checkCollision(player.x_pos, player.y_pos, player.size)) {
-                    player.set_position(oldX, oldY);
-                    player_circle.setPosition(oldX, oldY);
-                }
-           
+            // Откатываем позицию
+            player.set_position(oldX, oldY);
+            player_circle.setPosition(oldX, oldY);
         }
         //exit to menu
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
