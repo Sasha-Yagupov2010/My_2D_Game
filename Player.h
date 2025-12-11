@@ -11,7 +11,7 @@ public:
 
     bool flag = false;
     bool visible = true;
-    float size = 30.0;//diam
+    float size = 15.0;//diam
 
     void set_position(int x, int y) {
         x_pos = x;

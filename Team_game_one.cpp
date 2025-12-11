@@ -9,6 +9,7 @@ using namespace sf;
 #include "Player.h"
 #include "Mytext.h"
 #include "MyButton.h"
+#include "GameMap.h"
 
 void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 {
@@ -54,66 +55,89 @@ void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 
 void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
     float size = player.size; //radius
-    CircleShape circle(size/2);
+    CircleShape circle(size / 2);
     circle.setPosition(player.x_pos, player.y_pos);
 
     // Устанавливаем цвет заливки
     circle.setFillColor(Color::Red);
     circle.setOutlineColor(Color::White);
-    circle.setOutlineThickness(size/14);
+    circle.setOutlineThickness(size / 14);
+
+    // Автоматический расчет размера тайлов относительно экрана
+    const int mapWidthTiles = 12;  // количество тайлов по ширине
+    const int mapHeightTiles = 8;  // количество тайлов по высоте
+
+    // Размер тайла = минимум из (ширина_экрана/тайлы_по_ширине, высота_экрана/тайлы_по_высоте)
+    int tileSize = std::min(mysettings.width / mapWidthTiles, mysettings.height / mapHeightTiles);
+
+    // Создаем карту с автоматическим размером тайлов
+    GameMap gameMap(mapWidthTiles, mapHeightTiles, tileSize);
+
+    // Загружаем уровень
+    std::vector<std::vector<int>> level = {
+        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+        {1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1},
+        {1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    };
+
+    gameMap.loadFromArray(level, Color::White);
 
     bool gameRun = true;
     uint8_t speed = 5;
 
-    while(gameRun)
+    while (gameRun)
     {
+        // Сохраняем старую позицию для отката при коллизии
+        float oldX = player.x_pos;
+        float oldY = player.y_pos;
 
         if (Keyboard::isKeyPressed(Keyboard::Left)) {
-            float newX = player.x_pos - speed;
-            if (newX >= 0) {
-                player.move(-speed, 0);
-                circle.move(-speed, 0);
-            }
+            player.move(-speed, 0);
+            circle.move(-speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::Right)) {
-            float newX = player.x_pos + speed;
-            if (newX <= mysettings.width - size) {
-                player.move(speed, 0);
-                circle.move(speed, 0);
-            }
+            player.move(speed, 0);
+            circle.move(speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::Up)) {
-            float newY = player.y_pos - speed;
-            if (newY >= 0) {
-                player.move(0, -speed);
-                circle.move(0, -speed);
-            }
+            player.move(0, -speed);
+            circle.move(0, -speed);
         }
         if (Keyboard::isKeyPressed(Keyboard::Down)) {
-            float newY = player.y_pos + speed;
-            if (newY <= mysettings.height - size) {
-                player.move(0, speed);
-                circle.move(0, speed);
-            }
+            player.move(0, speed);
+            circle.move(0, speed);
         }
 
+        // Проверяем коллизии
+        if (gameMap.checkCollision(player.x_pos, player.y_pos, size) ||
+            player.x_pos < 0 || player.x_pos > mysettings.width - size ||
+            player.y_pos < 0 || player.y_pos > mysettings.height - size) {
+
+            // Откатываем позицию
+            player.set_position(oldX, oldY);
+            circle.setPosition(oldX, oldY);
+        }
 
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
             player.set_position(0, 0);
             gameRun = false;
-
         }
-        
-        
-
 
         window.clear();
-        //circle.setPosition(player.x_pos, player.y_pos);
+
+        // Рисуем карту ПЕРВОЙ (фон)
+        gameMap.draw(window);
+
+        // Рисуем игрока ПОВЕРХ карты
         window.draw(circle);
+
         window.display();
-
     }
-
 }
 
 int main()

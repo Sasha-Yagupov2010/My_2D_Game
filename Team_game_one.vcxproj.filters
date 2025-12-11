@@ -32,5 +32,8 @@
     <ClInclude Include="MyButton.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="GameMap.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
