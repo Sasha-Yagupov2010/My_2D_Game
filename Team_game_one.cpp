@@ -45,6 +45,7 @@ int main()
                 window.close();
          }
         
+        /*
         if (event.type == Event::MouseButtonPressed)
         {
             if (event.mouseButton.button == Mouse::Left)
@@ -57,9 +58,10 @@ int main()
                 }
             }
         }
+        */
         
         window.clear();
-
+        if(button.is_pressed(window)) gameStarted = true;
         if (!gameStarted)
         {
             // Рисуем кнопку "Играть"
