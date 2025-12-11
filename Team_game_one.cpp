@@ -58,8 +58,13 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
     Player player;
     Flag flag;
 
+    Player enemy;
+    Flag enemyflag;
+
     uint16_t percent_of_resizing = (mysettings.height / 400 * 100);
 
+
+    /*============================ основной игрок =============================*/
     // игрок
     player.size = percent_of_resizing *player.size/100;
     player.speed = percent_of_resizing * player.speed / 100;
@@ -84,6 +89,35 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
     flag_circle.setFillColor(Color::Green);
     flag_circle.setOutlineColor(Color::Red);
     flag_circle.setOutlineThickness(flag.size/7);
+    /*=========================================================*/
+
+    /*============================ второстепенный игрок =============================*/
+    // игрок
+    enemy.size = percent_of_resizing * enemy.size / 100;
+    enemy.speed = percent_of_resizing * enemy.speed / 100;
+    //float size = player.size; 
+
+    CircleShape enemy_circle(enemy.size / 2);
+    enemy.set_position(mysettings.width-enemy.size, mysettings.height / 2);
+
+    enemy_circle.setPosition(enemy.x_pos, enemy.y_pos);
+    enemy_circle.setFillColor(Color::Blue);
+    enemy_circle.setOutlineColor(Color::White);
+    enemy_circle.setOutlineThickness(enemy.size / 14);
+
+
+    // флажок
+    enemyflag.size = percent_of_resizing * enemyflag.size / 100;
+
+    CircleShape enemyflag_circle(enemyflag.size / 2);
+    enemyflag.set_position(enemy.x_pos, enemy.y_pos);
+
+    enemyflag_circle.setPosition(enemyflag.x_pos, enemyflag.y_pos);
+    enemyflag_circle.setFillColor(Color::Green);
+    enemyflag_circle.setOutlineColor(Color::Blue);
+    enemyflag_circle.setOutlineThickness(enemyflag.size / 7);
+    /*=========================================================*/
+
 
 
     // Автоматический расчет размера тайлов относительно экрана
@@ -146,6 +180,9 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
         gameMap.draw(window);
         window.draw(player_circle);
         window.draw(flag_circle);
+
+        window.draw(enemyflag_circle);
+        window.draw(enemy_circle);
 
         window.display();
     }
