@@ -10,8 +10,51 @@ using namespace sf;
 #include "Mytext.h"
 #include "MyButton.h"
 
+void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
+{
+    //кнопочки
+    MyButton play_button(200, 50, Color::White, (mysettings.width - 200) / 2, (mysettings.height - 50) / 2);
+    play_button.setVisible(true);
+
+    MyButton exit_button(200, 50, Color::White, (mysettings.width - 200) / 2, (mysettings.height - 50) / 3);
+    exit_button.setVisible(true);
+
+    //текстовые блоки
+    MyText menu_text("myfonts/arialmt.ttf", "Menu");
+    menu_text.setVisible(true);
+    menu_text.setColor(Color::White);
+    menu_text.setPosition(100.f, 100.f);
+
+    MyText play_text("myfonts/arialmt.ttf", "Play");
+    play_text.setVisible(true);
+    play_text.setColor(Color::Black);
+    play_text.center(play_button.get_shape().getGlobalBounds());
+
+
+    MyText exit_text("myfonts/arialmt.ttf", "Exit");
+    exit_text.setVisible(true);
+    exit_text.setColor(Color::Black);
+    exit_text.center(exit_button.get_shape().getGlobalBounds());
+
+
+    window.clear();
+    play_button.draw(window);
+    exit_button.draw(window);
+
+    menu_text.draw(window);
+    play_text.draw(window);
+    exit_text.draw(window);
+
+    window.display();
+
+    if (play_button.is_pressed(window)) { gameStarted = true; }
+    if (exit_button.is_pressed(window)) { window.close(); }
+
+}
+
 int main()
 {
+    /* настройки проекта */
     Settings mysettings;
     mysettings.height = 600;
     mysettings.width = 400;
@@ -21,18 +64,8 @@ int main()
 
     window.setVerticalSyncEnabled(true);
     window.setFramerateLimit(mysettings.fps);
-
+    /* =============================== */
   
-    //текст тестирование
-    MyText myText("myfonts/arialmt.ttf", "Play");
-    myText.setVisible(true);
-    myText.setPosition(100.f, 50.f);
-
-    //кнопочка
-    MyButton button(200, 50, Color::Blue, (mysettings.width - 200) / 2, (mysettings.height - 50) / 2);
-    button.setVisible(true);
-    
-    
 
     bool gameStarted = false;
 
@@ -43,38 +76,10 @@ int main()
         {
             if (event.type == Event::Closed)
                 window.close();
-         }
-        
-        /*
-        if (event.type == Event::MouseButtonPressed)
-        {
-            if (event.mouseButton.button == Mouse::Left)
-            {
-                Vector2i mousePos = Mouse::getPosition(window);
-                if (button.get_shape().getGlobalBounds().contains(mousePos.x, mousePos.y))
-                {
-                    // Нажата кнопка "Играть"
-                    gameStarted = true;
-                }
-            }
         }
-        */
-        
-        window.clear();
-        if(button.is_pressed(window)) gameStarted = true;
-        if (!gameStarted)
-        {
-            // Рисуем кнопку "Играть"
 
-            button.draw(window);
-            myText.draw(window);
-        }
-        else
-        {
-            // Тут уже идет сама игра
-            // Можно рисовать игровые объекты
-        }
-        window.display();
+        //menu
+        menu(window, mysettings, gameStarted);
     }
-    return 0;
+     return 0;
 }

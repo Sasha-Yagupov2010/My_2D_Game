@@ -25,12 +25,17 @@ public:
         sfText_.setString(text_);
         sfText_.setCharacterSize(size_);
         sfText_.setFillColor(sf::Color::White);
+
     }
 
     // Установка текста
     void setString(const String& text) {
         text_ = text;
         sfText_.setString(text_);
+    }
+
+    void setColor(Color color) {
+        sfText_.setFillColor(color);
     }
 
     // Установка позиции
