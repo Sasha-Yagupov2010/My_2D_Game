@@ -150,6 +150,16 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     score1_value.setColor(Color::Red);
     score1_value.setPosition((mysettings.width - 200) * 0.1 + 100, 0);
 
+    MyText score2_text("myfonts/arial_bolditalicmt.ttf", "Score:", 28);
+    score2_text.setVisible(true);
+    score2_text.setColor(Color::Blue);
+    score2_text.setPosition((mysettings.width - 200)*0.9, 0);
+
+    MyText score2_value("myfonts/arialmt.ttf", "0", 24);
+    score2_value.setVisible(true);
+    score2_value.setColor(Color::Blue);
+    score2_value.setPosition((mysettings.width - 200) * 0.9+100, 0);
+
 
 
     // Автоматический расчет размера тайлов относительно экрана
@@ -216,13 +226,13 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         int distance;
         if (Keyboard::isKeyPressed(Keyboard::E)) {
             distance = sqrt(pow((enemyflag.x_pos - player.x_pos), 2) + pow((enemyflag.y_pos - player.y_pos), 2));
-            cout << distance << endl;
+            //cout << distance << endl;
             player.flag = (distance < mindist_to_flag);
         }
 
         if (Keyboard::isKeyPressed(Keyboard::RControl)) {
             distance = sqrt(pow((flag.x_pos - enemy.x_pos), 2) + pow((flag.y_pos - enemy.y_pos), 2));
-            cout << distance << endl;
+            //cout << distance << endl;
             enemy.flag = (distance < mindist_to_flag);
         }
 
@@ -274,7 +284,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         }
 
         distance = sqrt(pow((flag.x_pos - teamTwoBaseX), 2) + pow((flag.y_pos - teamTwoBaseY), 2));
-        if (distance < mindist_to_flag) {
+        //cout << distance<<endl;
+        if (distance < mindist_to_flag+flag.size) {
             flag.set_position(teamOneBaseX, teamOneBaseY);
             flag_circle.setPosition(teamOneBaseX, teamOneBaseY);
 
@@ -298,6 +309,9 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         score1_value.setString(to_string(player.score));
         score1_value.draw(window);
 
+        score2_text.draw(window);
+        score2_value.setString(to_string(enemy.score));
+        score2_value.draw(window);
 
         window.display();
     }
