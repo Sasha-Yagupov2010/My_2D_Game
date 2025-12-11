@@ -67,28 +67,45 @@ void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
 
     while(gameRun)
     {
+
         if (Keyboard::isKeyPressed(Keyboard::Left)) {
-            player.move(-speed, 0);
-            circle.move(-speed, 0);
+            float newX = player.x_pos - speed;
+            if (newX >= 0) {
+                player.move(-speed, 0);
+                circle.move(-speed, 0);
+            }
         }
         if (Keyboard::isKeyPressed(Keyboard::Right)) {
-            player.move(speed, 0);
-            circle.move(speed, 0);
+            float newX = player.x_pos + speed;
+            if (newX <= mysettings.width) {
+                player.move(speed, 0);
+                circle.move(speed, 0);
+            }
         }
         if (Keyboard::isKeyPressed(Keyboard::Up)) {
-            player.move(0, -speed);
-            circle.move(0, -speed);
+            float newY = player.y_pos - speed;
+            if (newY >= 0) {
+                player.move(0, -speed);
+                circle.move(0, -speed);
+            }
         }
         if (Keyboard::isKeyPressed(Keyboard::Down)) {
-            player.move(0, speed);
-            circle.move(0, speed);
+            float newY = player.y_pos + speed;
+            if (newY <= mysettings.height) {
+                player.move(0, speed);
+                circle.move(0, speed);
+            }
         }
+
+
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
             player.set_position(0, 0);
             gameRun = false;
 
         }
         
+        
+
 
         window.clear();
         //circle.setPosition(player.x_pos, player.y_pos);
@@ -103,13 +120,13 @@ int main()
 {
     /* настройки проекта */
     Settings mysettings;
-    mysettings.height = 600;
-    mysettings.width = 400;
+    mysettings.height = 400;
+    mysettings.width = 600;
     mysettings.fps = 60;
 
     Player player;
 
-    RenderWindow window( VideoMode(mysettings.height, mysettings.width), L"Game",  Style::Default);
+    RenderWindow window( VideoMode(mysettings.width, mysettings.height), L"Game",  Style::Default);
 
     window.setVerticalSyncEnabled(true);
     window.setFramerateLimit(mysettings.fps);
