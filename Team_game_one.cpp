@@ -52,6 +52,53 @@ void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 
 }
 
+void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
+    
+    CircleShape circle(15.f);
+    circle.setPosition(player.x_pos, player.y_pos);
+
+    // Устанавливаем цвет заливки
+    circle.setFillColor(Color::Red);
+    circle.setOutlineColor(Color::White);
+    circle.setOutlineThickness(2.f);
+
+    bool gameRun = true;
+    uint8_t speed = 5;
+
+    while(gameRun)
+    {
+        if (Keyboard::isKeyPressed(Keyboard::Left)) {
+            player.move(-speed, 0);
+            circle.move(-speed, 0);
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Right)) {
+            player.move(speed, 0);
+            circle.move(speed, 0);
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Up)) {
+            player.move(0, -speed);
+            circle.move(0, -speed);
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Down)) {
+            player.move(0, speed);
+            circle.move(0, speed);
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+            player.set_position(0, 0);
+            gameRun = false;
+
+        }
+        
+
+        window.clear();
+        //circle.setPosition(player.x_pos, player.y_pos);
+        window.draw(circle);
+        window.display();
+
+    }
+
+}
+
 int main()
 {
     /* настройки проекта */
@@ -59,6 +106,8 @@ int main()
     mysettings.height = 600;
     mysettings.width = 400;
     mysettings.fps = 60;
+
+    Player player;
 
     RenderWindow window( VideoMode(mysettings.height, mysettings.width), L"Game",  Style::Default);
 
@@ -79,6 +128,10 @@ int main()
         }
 
         //menu
+        if (gameStarted) {
+            singleGame(window, mysettings,player); 
+            gameStarted = false;
+        }
         menu(window, mysettings, gameStarted);
     }
      return 0;

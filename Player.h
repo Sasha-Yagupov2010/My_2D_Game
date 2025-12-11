@@ -12,9 +12,14 @@ public:
     bool flag = false;
     bool visible = true;
 
-    int set_position(int x, int y) {
+    void set_position(int x, int y) {
         x_pos = x;
         y_pos = y;
+    }
+
+    void move(int x, int y) {
+        x_pos += x;
+        y_pos += y;
     }
 
     void update() {
