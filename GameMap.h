@@ -3,6 +3,9 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 using namespace std;
 using namespace sf;
 
@@ -61,6 +64,55 @@ public:
     int getTileSize() const { return tileSize; }
     int getMapWidth() const { return mapWidth; }
     int getMapHeight() const { return mapHeight; }
+
+    bool loadFromFile(const string& filename, Color color) {
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cerr << "Ошибка: не удалось открыть файл " << filename << endl;
+            return false;
+        }
+
+        vector<vector<int>> newMap;
+        string line;
+
+        while (getline(file, line)) {
+            vector<int> row;
+            stringstream ss(line);
+            string cell;
+
+            while (getline(ss, cell, ',')) {
+                try {
+                    row.push_back(stoi(cell));
+                }
+                catch (const exception& e) {
+                    cerr << "Ошибка чтения данных из файла: " << e.what() << endl;
+                    return false;
+                }
+            }
+
+            if (!row.empty()) {
+                newMap.push_back(row);
+            }
+        }
+
+        file.close();
+
+        if (newMap.empty()) {
+            cerr << "Ошибка: файл пуст или содержит неверные данные" << endl;
+            return false;
+        }
+
+        map = newMap;
+        mapHeight = map.size();
+        mapWidth = map[0].size();
+        createWalls(color);
+
+        cout << "Карта загружена из файла: " << filename
+            << " (" << mapWidth << "x" << mapHeight << ")" << endl;
+        return true;
+    }
+
+
 };
 
 #endif // !GameMap_H

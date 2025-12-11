@@ -14,17 +14,18 @@ using namespace sf;
 void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 {
     //кнопочки
-    MyButton play_button(200, 50, Color::White, (mysettings.width - 200) / 2, (mysettings.height - 50) / 2);
+    MyButton play_button(200, 50, Color::White, (mysettings.width - 200)/2, (mysettings.height - 50) * 0.3);
     play_button.setVisible(true);
 
-    MyButton exit_button(200, 50, Color::White, (mysettings.width - 200) / 2, (mysettings.height - 50) / 3);
+    MyButton exit_button(200, 50, Color::White, (mysettings.width - 200)/2, (mysettings.height - 50) * 0.425);
     exit_button.setVisible(true);
 
     //текстовые блоки
-    MyText menu_text("myfonts/arialmt.ttf", "Menu");
+    MyText menu_text("myfonts/arial_bolditalicmt.ttf", "Menu",72);
     menu_text.setVisible(true);
+    //menu_text.setSize(100);
     menu_text.setColor(Color::White);
-    menu_text.setPosition(100.f, 100.f);
+    menu_text.setPosition((mysettings.width-200)/2, mysettings.height*0.1);
 
     MyText play_text("myfonts/arialmt.ttf", "Play");
     play_text.setVisible(true);
@@ -56,6 +57,7 @@ void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
     float size = player.size; //radius
     CircleShape circle(size / 2);
+    player.set_position(0, mysettings.height/2);
     circle.setPosition(player.x_pos, player.y_pos);
 
     // Устанавливаем цвет заливки
@@ -64,31 +66,20 @@ void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
     circle.setOutlineThickness(size / 14);
 
     // Автоматический расчет размера тайлов относительно экрана
-    const int mapWidthTiles = 12;  // количество тайлов по ширине
-    const int mapHeightTiles = 8;  // количество тайлов по высоте
+    const int mapWidthTiles = 24;   // количество тайлов по ширине
+    const int mapHeightTiles = 16;  // количество тайлов по высоте
 
-    // Размер тайла = минимум из (ширина_экрана/тайлы_по_ширине, высота_экрана/тайлы_по_высоте)
-    int tileSize = std::min(mysettings.width / mapWidthTiles, mysettings.height / mapHeightTiles);
+    
+    int tileSize = min(mysettings.width / mapWidthTiles, mysettings.height / mapHeightTiles);
 
-    // Создаем карту с автоматическим размером тайлов
     GameMap gameMap(mapWidthTiles, mapHeightTiles, tileSize);
 
-    // Загружаем уровень
-    std::vector<std::vector<int>> level = {
-        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1},
-        {1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1},
-        {1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1},
-        {1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-    };
-
-    gameMap.loadFromArray(level, Color::White);
+    if (!gameMap.loadFromFile("maps/fastrunner.txt", Color::White)) {
+        cout << "error: map not loaded!"<<endl;
+    }
 
     bool gameRun = true;
-    uint8_t speed = 5;
+    uint8_t speed = player.speed;
 
     while (gameRun)
     {
@@ -130,10 +121,8 @@ void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
 
         window.clear();
 
-        // Рисуем карту ПЕРВОЙ (фон)
-        gameMap.draw(window);
 
-        // Рисуем игрока ПОВЕРХ карты
+        gameMap.draw(window);
         window.draw(circle);
 
         window.display();
@@ -144,8 +133,8 @@ int main()
 {
     /* настройки проекта */
     Settings mysettings;
-    mysettings.height = 400;
-    mysettings.width = 600;
+    mysettings.height = 800;
+    mysettings.width = 1200;
     mysettings.fps = 60;
 
     Player player;

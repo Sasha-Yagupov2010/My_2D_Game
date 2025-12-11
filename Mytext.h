@@ -33,7 +33,9 @@ public:
         text_ = text;
         sfText_.setString(text_);
     }
-
+    void setSize(unsigned int size = 24) {
+        sfText_.setCharacterSize(size_);
+    }
     void setColor(Color color) {
         sfText_.setFillColor(color);
     }

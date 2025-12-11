@@ -12,6 +12,7 @@ public:
     bool flag = false;
     bool visible = true;
     float size = 15.0;//diam
+    uint8_t speed = 2;
 
     void set_position(int x, int y) {
         x_pos = x;
