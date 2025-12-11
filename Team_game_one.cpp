@@ -1,6 +1,7 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <cmath>
+#include <string>
 using namespace std;
 using namespace sf;
 
@@ -57,7 +58,7 @@ void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 
 void singleGame(RenderWindow& window, Settings& mysettings) {
     //для каждой игры свой игрок и 
-    const uint8_t mindist_to_flag = 5;
+    const uint8_t mindist_to_flag = 12;
 
     Player player;
     Flag flag;
@@ -127,6 +128,17 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
     enemyflag_circle.setOutlineColor(Color::Blue);
     enemyflag_circle.setOutlineThickness(enemyflag.size / 7);
     /*=========================================================*/
+
+    //текстовые блоки
+    MyText score1_text("myfonts/arial_bolditalicmt.ttf", "Score:", 28);
+    score1_text.setVisible(true);
+    score1_text.setColor(Color::Red);
+    score1_text.setPosition((mysettings.width - 200)*0.1, 0);
+
+    MyText score1_value("myfonts/arialmt.ttf","0",24);
+    score1_value.setVisible(true);
+    score1_value.setColor(Color::Red);
+    score1_value.setPosition((mysettings.width - 200)*0.1 + 100, 0);
 
 
 
@@ -216,6 +228,11 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
 
         window.draw(enemyflag_circle);
         window.draw(enemy_circle);
+
+        score1_text.draw(window);
+        score1_value.setString(to_string(player.score));
+        score1_value.draw(window);
+
 
         window.display();
     }
