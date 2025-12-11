@@ -1,5 +1,6 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <iostream>
+#include <cmath>
 using namespace std;
 using namespace sf;
 
@@ -9,6 +10,7 @@ using namespace sf;
 #include "MyButton.h"
 #include "GameMap.h"
 #include "Flag.h"
+
 
 void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 {
@@ -55,6 +57,8 @@ void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 
 void singleGame(RenderWindow& window, Settings& mysettings) {
     //для каждой игры свой игрок и 
+    const uint8_t mindist_to_flag = 5;
+
     Player player;
     Flag flag;
 
@@ -64,6 +68,12 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
     uint16_t percent_of_resizing = (mysettings.height / 400 * 100);
 
 
+    float teamOneBaseX = 0;
+    float teamOneBaseY = mysettings.height / 2;
+
+    float teamTwoBaseX = mysettings.width;
+    float teamTwoBaseY = mysettings.height / 2;
+
     /*============================ основной игрок =============================*/
     // игрок
     player.size = percent_of_resizing *player.size/100;
@@ -71,7 +81,7 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
     //float size = player.size; 
 
     CircleShape player_circle(player.size / 2);
-    player.set_position(0, mysettings.height/2);
+    player.set_position(teamOneBaseX, teamOneBaseY);
 
     player_circle.setPosition(player.x_pos, player.y_pos);
     player_circle.setFillColor(Color::Red);
@@ -83,7 +93,7 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
     flag.size = percent_of_resizing * flag.size / 100;
 
     CircleShape flag_circle(flag.size / 2);
-    flag.set_position(player.x_pos, player.y_pos);
+    flag.set_position(teamOneBaseX, teamOneBaseY);
 
     flag_circle.setPosition(flag.x_pos, flag.y_pos);
     flag_circle.setFillColor(Color::Green);
@@ -98,7 +108,7 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
     //float size = player.size; 
 
     CircleShape enemy_circle(enemy.size / 2);
-    enemy.set_position(mysettings.width-enemy.size, mysettings.height / 2);
+    enemy.set_position(teamTwoBaseX -enemy.size, teamTwoBaseY);
 
     enemy_circle.setPosition(enemy.x_pos, enemy.y_pos);
     enemy_circle.setFillColor(Color::Blue);
@@ -110,7 +120,7 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
     enemyflag.size = percent_of_resizing * enemyflag.size / 100;
 
     CircleShape enemyflag_circle(enemyflag.size / 2);
-    enemyflag.set_position(enemy.x_pos, enemy.y_pos);
+    enemyflag.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);
 
     enemyflag_circle.setPosition(enemyflag.x_pos, enemyflag.y_pos);
     enemyflag_circle.setFillColor(Color::Green);
@@ -159,6 +169,13 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
             player_circle.move(0, speed);
         }
 
+        if (Keyboard::isKeyPressed(Keyboard::E)) {
+            int distance = sqrt(pow((enemyflag.x_pos - player.x_pos), 2) + pow((enemyflag.y_pos - player.y_pos), 2));
+            if (distance < mindist_to_flag) player.flag = true; 
+            else player.flag = false;
+        }
+
+
         // Проверяем коллизии
         if (gameMap.checkCollision(player.x_pos, player.y_pos, player.size) ||
             player.x_pos < 0 || player.x_pos > mysettings.width - player.size ||
@@ -168,11 +185,27 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
             player.set_position(oldX, oldY);
             player_circle.setPosition(oldX, oldY);
         }
-
+        //exit to menu
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
             player.set_position(0, 0);
             gameRun = false;
         }
+
+        //move flag
+        if (player.flag) {
+            enemyflag.set_position(player.x_pos, player.y_pos);
+            enemyflag_circle.setPosition(enemyflag.x_pos, enemyflag.y_pos);
+        }
+
+        int distance = sqrt(pow((enemyflag.x_pos - teamOneBaseX), 2) + pow((enemyflag.y_pos - teamOneBaseY), 2));
+        if (distance < mindist_to_flag) {
+            enemyflag.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);
+            enemyflag_circle.setPosition(teamTwoBaseX - enemy.size, teamTwoBaseY);
+
+            player.score += 1;
+            player.flag = false;
+        }
+
 
         window.clear();
 
