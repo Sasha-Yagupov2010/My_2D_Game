@@ -35,5 +35,8 @@
     <ClInclude Include="GameMap.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="Flag.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -55,7 +55,13 @@ void menu(RenderWindow& window, Settings& mysettings, bool& gameStarted)
 }
 
 void singleGame(RenderWindow& window, Settings& mysettings, Player& player) {
-    float size = player.size; //radius
+
+    uint16_t percent_of_resizing = (mysettings.height / 400 * 100);
+    player.size = percent_of_resizing *player.size/100;
+    player.speed = percent_of_resizing * player.speed / 100;
+    float size = player.size; 
+
+
     CircleShape circle(size / 2);
     player.set_position(0, mysettings.height/2);
     circle.setPosition(player.x_pos, player.y_pos);
