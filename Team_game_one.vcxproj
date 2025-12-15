@@ -135,6 +135,8 @@
   <ItemGroup>
     <ClCompile Include="libs\Flag.cpp" />
     <ClCompile Include="libs\GameMap.cpp" />
+    <ClCompile Include="libs\MyButton.cpp" />
+    <ClCompile Include="libs\Mytext.cpp" />
     <ClCompile Include="libs\Player.cpp" />
     <ClCompile Include="Team_game_one.cpp" />
   </ItemGroup>

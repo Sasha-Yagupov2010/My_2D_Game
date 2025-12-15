@@ -15,56 +15,25 @@ private:
 
 public:
     // Конструктор
-    MyText(const std::string& fontPath, const String& text = "", unsigned int size = 24)
-        : text_(text), size_(size), visible_(false) {
-        if (!font_.loadFromFile(fontPath)) {
-            // Обработка ошибки
-            throw std::runtime_error("Failed to load font");
-        }
-        sfText_.setFont(font_);
-        sfText_.setString(text_);
-        sfText_.setCharacterSize(size_);
-        sfText_.setFillColor(sf::Color::White);
+    MyText(const std::string& fontPath, const String& text = "", unsigned int size = 24);
 
-    }
 
     // Установка текста
-    void setString(const String& text) {
-        text_ = text;
-        sfText_.setString(text_);
-    }
-    void setSize(unsigned int size = 24) {
-        sfText_.setCharacterSize(size_);
-    }
-    void setColor(Color color) {
-        sfText_.setFillColor(color);
-    }
+    void setString(const String& text);
+    void setSize(unsigned int size = 24);
+    void setColor(Color color);
 
     // Установка позиции
-    void setPosition(float x, float y) {
-        sfText_.setPosition(x, y);
-    }
+    void setPosition(float x, float y);
 
     // Центрирование по рамке
-    void center(const FloatRect& bounds) {
-        FloatRect textRect = sfText_.getLocalBounds();
-        sfText_.setOrigin(textRect.left + textRect.width / 2.f,
-            textRect.top + textRect.height / 2.f);
-        sfText_.setPosition(bounds.left + bounds.width / 2.f,
-            bounds.top + bounds.height / 2.f);
-    }
+    void center(const FloatRect& bounds);
 
     // Отрисовка
-    void draw(sf::RenderWindow& window) {
-        if (visible_) {
-            window.draw(sfText_);
-        }
-    }
+    void draw(sf::RenderWindow& window);
 
     // Установка видимости
-    void setVisible(bool visible) {
-        visible_ = visible;
-    }
+    void setVisible(bool visible);
 };
 
 #endif // !Mytext_H
