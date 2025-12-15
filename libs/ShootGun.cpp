@@ -2,11 +2,11 @@
 
 ShootGun::ShootGun(int max_count, int count) :max_count(max_count), count(count) {}
 
-void ShootGun::setPos(int x, int y) 
+void ShootGun::setPos(float x, float y)
 	{ startX = x; startY = y; }
 
 
-void ShootGun::setTarget(int x, int y) 
+void ShootGun::setTarget(float x, float y)
 	{ targetX = x; targetY = y; }
 
 

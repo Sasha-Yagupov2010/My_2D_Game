@@ -5,11 +5,11 @@
 
 class ShootGun {
 public:
-	int startX;
-	int startY;
+	float startX;
+	float startY;
 
-	int targetX;
-	int targetY;
+	float targetX;
+	float targetY;
 
 	int count;
 	int max_count;
@@ -18,8 +18,8 @@ public:
 
 	ShootGun(int max_count=15, int count=15);
 
-	void setPos(int, int);
-	void setTarget(int, int);
+	void setPos(float, float);
+	void setTarget(float, float);
 	bool step(float);
 	void unvis();
 	void resetTarget();

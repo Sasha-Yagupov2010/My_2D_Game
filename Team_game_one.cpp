@@ -164,6 +164,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     score2_value.setPosition((mysettings.width - 200) * 0.9+100, 0);
 
     /*===== пули =====*/
+    const uint8_t shoot_speed = 4;
+
     ShootGun gun1(15, 15);
     gun1.setPos(player.x_pos, player.y_pos);
     gun1.visible = false;
@@ -171,6 +173,16 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
     CircleShape gun1_circle(percent_of_resizing * 5 / 100);
     gun1_circle.setFillColor(Color::White);
+
+
+
+    ShootGun gun2(15, 15);
+    gun2.setPos(enemy.x_pos, enemy.y_pos);
+    gun2.visible = false;
+    gun2.resetTarget();
+
+    CircleShape gun2_circle(percent_of_resizing * 5 / 100);
+    gun2_circle.setFillColor(Color::White);
     /*===== пули =====*/
 
 
@@ -263,17 +275,18 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         
         }
 
-        /*
+        
         if (Keyboard::isKeyPressed(Keyboard::U)) {
-            if (gun2.count)
+            if (gun2.count and !gun2.visible)
             {
+                gun2.setPos(enemy.x_pos, enemy.y_pos);
                 gun2.visible = true;
                 gun2.setTarget(player.x_pos, player.y_pos);
                 gun2.count -= 1;
             }
 
         }
-        */
+        
         /* ============ стрельба ============*/
 
 
@@ -354,16 +367,25 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         score2_text.draw(window);
         score2_value.setString(to_string(enemy.score));
         score2_value.draw(window);
-        cout << gun1.startX << gun1.startY << gun1.targetX << gun1.targetY << endl<<gun1.count<<endl;
+        //cout << gun1.startX << gun1.startY << gun1.targetX << gun1.targetY << endl<<gun1.count<<endl;
 
         //пули, обработка
         if (gun1.visible) 
         {
-            gun1.step(2);
+            gun1.step(shoot_speed);
             gun1_circle.setPosition(gun1.startX, gun1.startY);
             window.draw(gun1_circle); 
 
             if (gun1.startX == gun1.targetX and gun1.startY == gun1.targetY) { gun1.visible = false; }
+        }
+
+        if (gun2.visible)
+        {
+            gun2.step(shoot_speed);
+            gun2_circle.setPosition(gun2.startX, gun2.startY);
+            window.draw(gun2_circle);
+
+            if (gun2.startX == gun2.targetX and gun2.startY == gun2.targetY) { gun2.visible = false; }
         }
 
         window.display();
