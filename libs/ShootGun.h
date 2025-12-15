@@ -22,6 +22,7 @@ public:
 	void setTarget(int, int);
 	bool step(float);
 	void unvis();
+	void resetTarget();
 };
 
 

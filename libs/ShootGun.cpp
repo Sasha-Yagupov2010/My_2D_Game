@@ -38,3 +38,8 @@ bool ShootGun::step(float stepSize) {
 
 void ShootGun::unvis() 
 	{ visible = !visible; }
+
+void ShootGun::resetTarget() {
+    targetX = -1;
+    targetY = -1;
+}

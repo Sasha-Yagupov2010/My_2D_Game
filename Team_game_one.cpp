@@ -163,6 +163,15 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     score2_value.setColor(Color::Blue);
     score2_value.setPosition((mysettings.width - 200) * 0.9+100, 0);
 
+    /*===== пули =====*/
+    ShootGun gun1(15, 15);
+    gun1.setPos(player.x_pos, player.y_pos);
+    gun1.visible = false;
+    gun1.resetTarget();
+
+    CircleShape gun1_circle(percent_of_resizing * 5 / 100);
+    gun1_circle.setFillColor(Color::White);
+    /*===== пули =====*/
 
 
     // Автоматический расчет размера тайлов относительно экрана
@@ -177,7 +186,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     }
 
     bool gameRun = true;
-    uint8_t speed = player.speed; 
+    uint8_t speed = player.speed;
+
 
     while (gameRun)
     {
@@ -208,19 +218,19 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         /* =================== движение ===================*/
 
         /* =================== движение ===================*/
-        if (Keyboard::isKeyPressed(Keyboard::Left)) {
+        if (Keyboard::isKeyPressed(Keyboard::J)) {
             enemy.move(-speed, 0);
             enemy_circle.move(-speed, 0);
         }
-        if (Keyboard::isKeyPressed(Keyboard::Right)) {
+        if (Keyboard::isKeyPressed(Keyboard::L)) {
             enemy.move(speed, 0);
             enemy_circle.move(speed, 0);
         }
-        if (Keyboard::isKeyPressed(Keyboard::Up)) {
+        if (Keyboard::isKeyPressed(Keyboard::I)) {
             enemy.move(0, -speed);
             enemy_circle.move(0, -speed);
         }
-        if (Keyboard::isKeyPressed(Keyboard::Down)) {
+        if (Keyboard::isKeyPressed(Keyboard::K)) {
             enemy.move(0, speed);
             enemy_circle.move(0, speed);
         }
@@ -234,12 +244,39 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             player.flag = (distance < mindist_to_flag);
         }
 
-        if (Keyboard::isKeyPressed(Keyboard::RControl)) {
+        if (Keyboard::isKeyPressed(Keyboard::O)) {
             distance = sqrt(pow((flag.x_pos - enemy.x_pos), 2) + pow((flag.y_pos - enemy.y_pos), 2));
             //cout << distance << endl;
             enemy.flag = (distance < mindist_to_flag);
         }
         /* ============ захват ============*/
+
+        /* ============ стрельба ============*/
+        if (Keyboard::isKeyPressed(Keyboard::Q)) {
+            if(gun1.count and !gun1.visible)
+            {
+                gun1.setPos(player.x_pos, player.y_pos);
+                gun1.visible = true;
+                gun1.setTarget(enemy.x_pos, enemy.y_pos);
+                gun1.count -= 1;
+            }
+        
+        }
+
+        /*
+        if (Keyboard::isKeyPressed(Keyboard::U)) {
+            if (gun2.count)
+            {
+                gun2.visible = true;
+                gun2.setTarget(player.x_pos, player.y_pos);
+                gun2.count -= 1;
+            }
+
+        }
+        */
+        /* ============ стрельба ============*/
+
+
 
         /* ============ Проверяем коллизии ============*/
         if (gameMap.checkCollision(player.x_pos, player.y_pos, player.size) ||
@@ -317,6 +354,17 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         score2_text.draw(window);
         score2_value.setString(to_string(enemy.score));
         score2_value.draw(window);
+        cout << gun1.startX << gun1.startY << gun1.targetX << gun1.targetY << endl<<gun1.count<<endl;
+
+        //пули, обработка
+        if (gun1.visible) 
+        {
+            gun1.step(2);
+            gun1_circle.setPosition(gun1.startX, gun1.startY);
+            window.draw(gun1_circle); 
+
+            if (gun1.startX == gun1.targetX and gun1.startY == gun1.targetY) { gun1.visible = false; }
+        }
 
         window.display();
     }
