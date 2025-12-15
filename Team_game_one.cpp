@@ -7,12 +7,12 @@
 using namespace std;
 using namespace sf;
 
-#include "Settings.h"
-#include "Player.h"
-#include "Mytext.h"
-#include "MyButton.h"
-#include "GameMap.h"
-#include "Flag.h"
+#include "libs/Settings.h"
+#include "libs/Player.h"
+#include "libs/Mytext.h"
+#include "libs/MyButton.h"
+#include "libs/GameMap.h"
+#include "libs/Flag.h"
 
 
 void menu(RenderWindow& window, Settings& mysettings, int& gameStarted)
@@ -167,8 +167,6 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     // Автоматический расчет размера тайлов относительно экрана
     const int mapWidthTiles = 24;   // количество тайлов по ширине
     const int mapHeightTiles = 16;  // количество тайлов по высоте
-
-
     int tileSize = min(mysettings.width / mapWidthTiles, mysettings.height / mapHeightTiles);
 
     GameMap gameMap(mapWidthTiles, mapHeightTiles, tileSize);
@@ -178,7 +176,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     }
 
     bool gameRun = true;
-    uint8_t speed = player.speed; //так то игроки на равных 
+    uint8_t speed = player.speed; 
 
     while (gameRun)
     {
@@ -189,7 +187,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         float oldX2 = enemy.x_pos;
         float oldY2 = enemy.y_pos;
 
-
+        /* =================== движение ===================*/
         if (Keyboard::isKeyPressed(Keyboard::A)) {
             player.move(-speed, 0);
             player_circle.move(-speed, 0);
@@ -206,8 +204,9 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             player.move(0, speed);
             player_circle.move(0, speed);
         }
+        /* =================== движение ===================*/
 
-        //2nd player
+        /* =================== движение ===================*/
         if (Keyboard::isKeyPressed(Keyboard::Left)) {
             enemy.move(-speed, 0);
             enemy_circle.move(-speed, 0);
@@ -224,7 +223,9 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             enemy.move(0, speed);
             enemy_circle.move(0, speed);
         }
+        /* =================== движение ===================*/
 
+        /* ============ захват ============*/
         int distance;
         if (Keyboard::isKeyPressed(Keyboard::E)) {
             distance = sqrt(pow((enemyflag.x_pos - player.x_pos), 2) + pow((enemyflag.y_pos - player.y_pos), 2));
@@ -237,8 +238,9 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             //cout << distance << endl;
             enemy.flag = (distance < mindist_to_flag);
         }
+        /* ============ захват ============*/
 
-        // Проверяем коллизии
+        /* ============ Проверяем коллизии ============*/
         if (gameMap.checkCollision(player.x_pos, player.y_pos, player.size) ||
             player.x_pos < 0 || player.x_pos > mysettings.width - player.size ||
             player.y_pos < 0 || player.y_pos > mysettings.height - player.size) {
@@ -256,7 +258,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             enemy.set_position(oldX2, oldY2);
             enemy_circle.setPosition(oldX2, oldY2);
         }
-
+        /* ============ Проверяем коллизии ============*/
 
 
         //exit to menu

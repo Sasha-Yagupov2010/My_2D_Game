@@ -133,15 +133,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="libs\Flag.cpp" />
+    <ClCompile Include="libs\GameMap.cpp" />
+    <ClCompile Include="libs\Player.cpp" />
     <ClCompile Include="Team_game_one.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Flag.h" />
-    <ClInclude Include="GameMap.h" />
-    <ClInclude Include="MyButton.h" />
-    <ClInclude Include="Mytext.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Settings.h" />
+    <ClInclude Include="libs\Flag.h" />
+    <ClInclude Include="libs\GameMap.h" />
+    <ClInclude Include="libs\MyButton.h" />
+    <ClInclude Include="libs\Mytext.h" />
+    <ClInclude Include="libs\Player.h" />
+    <ClInclude Include="libs\Settings.h" />
+    <ClInclude Include="libs\ShootGun.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

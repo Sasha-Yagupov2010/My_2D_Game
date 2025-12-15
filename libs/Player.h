@@ -15,20 +15,10 @@ public:
     uint8_t speed = 2;
     uint8_t score = 0;
 
-    void set_position(int x, int y) {
-        x_pos = x;
-        y_pos = y;
-    }
+    void set_position(int, int);
+    void move(int, int);
+    void update();
 
-    void move(int x, int y) {
-        x_pos += x;
-        y_pos += y;
-    }
-
-    void update() {
-        if (!visible) { visible = true; }
-        // код обновления
-    }
 }; 
 
 #endif // Player_H

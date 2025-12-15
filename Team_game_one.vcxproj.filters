@@ -18,24 +18,36 @@
     <ClCompile Include="Team_game_one.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="libs\Flag.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="libs\Player.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="libs\GameMap.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Settings.h">
+    <ClInclude Include="libs\Flag.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
+    <ClInclude Include="libs\GameMap.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="Mytext.h">
+    <ClInclude Include="libs\MyButton.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="MyButton.h">
+    <ClInclude Include="libs\Mytext.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="GameMap.h">
+    <ClInclude Include="libs\Player.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="Flag.h">
+    <ClInclude Include="libs\Settings.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="libs\ShootGun.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
