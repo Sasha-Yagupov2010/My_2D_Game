@@ -138,6 +138,7 @@
     <ClCompile Include="libs\MyButton.cpp" />
     <ClCompile Include="libs\Mytext.cpp" />
     <ClCompile Include="libs\Player.cpp" />
+    <ClCompile Include="libs\ShootGun.cpp" />
     <ClCompile Include="Team_game_one.cpp" />
   </ItemGroup>
   <ItemGroup>

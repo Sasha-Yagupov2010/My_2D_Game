@@ -13,6 +13,7 @@ using namespace sf;
 #include "libs/MyButton.h"
 #include "libs/GameMap.h"
 #include "libs/Flag.h"
+#include "libs/ShootGun.h"
 
 
 void menu(RenderWindow& window, Settings& mysettings, int& gameStarted)
