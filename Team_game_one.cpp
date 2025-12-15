@@ -165,13 +165,14 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
     /*===== пули =====*/
     const uint8_t shoot_speed = 4;
+    const uint8_t shoot_ball_size = percent_of_resizing * 5 / 100;
 
     ShootGun gun1(15, 15);
     gun1.setPos(player.x_pos, player.y_pos);
     gun1.visible = false;
     gun1.resetTarget();
 
-    CircleShape gun1_circle(percent_of_resizing * 5 / 100);
+    CircleShape gun1_circle(shoot_ball_size);
     gun1_circle.setFillColor(Color::White);
 
 
@@ -181,7 +182,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     gun2.visible = false;
     gun2.resetTarget();
 
-    CircleShape gun2_circle(percent_of_resizing * 5 / 100);
+    CircleShape gun2_circle(shoot_ball_size);
     gun2_circle.setFillColor(Color::White);
     /*===== пули =====*/
 
@@ -309,6 +310,16 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             enemy.set_position(oldX2, oldY2);
             enemy_circle.setPosition(oldX2, oldY2);
         }
+
+
+
+        if (gameMap.checkCollision(gun1.startX, gun1.startY, shoot_ball_size)) {
+            gun1.visible = false;
+        }
+
+        if (gameMap.checkCollision(gun2.startX, gun2.startY, shoot_ball_size)) {
+            gun2.visible = false;
+        }
         /* ============ Проверяем коллизии ============*/
 
 
@@ -367,7 +378,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         score2_text.draw(window);
         score2_value.setString(to_string(enemy.score));
         score2_value.draw(window);
-        //cout << gun1.startX << gun1.startY << gun1.targetX << gun1.targetY << endl<<gun1.count<<endl;
+        
 
         //пули, обработка
         if (gun1.visible) 
