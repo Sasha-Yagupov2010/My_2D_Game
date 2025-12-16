@@ -13,7 +13,7 @@ public:
     bool visible = true;
     float size = 15.0;//diam
     uint8_t speed = 2;
-    uint8_t score = 0;
+    int score = 0;
 
     void set_position(int, int);
     void move(int, int);

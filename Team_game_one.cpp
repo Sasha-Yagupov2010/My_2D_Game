@@ -81,11 +81,46 @@ void run_shoots_logic(ShootGun& gun, RenderWindow& window, CircleShape& gun_circ
     }
 }
 
-float calculate_distance(float x1, float x2, float y1, float y2) {
+float calc_distance(float x1, float x2, float y1, float y2) {
     float dx = x1 - x2;
     float dy = y1 - y2;
     return sqrt(dx * dx + dy * dy);
 }
+
+int calc_text_size(string text, int size) { return text.length()* size/2; }
+int calc_text_size(string text) { return 200; }
+
+void winPlayerScreen(string winner, RenderWindow& window, Settings& mysettings)
+{
+    MyText winneris("myfonts/arial_bolditalicmt.ttf", "Winner is:", 72);
+    winneris.setVisible(true);
+    winneris.setColor(Color::White);
+    winneris.setPosition(
+        (mysettings.width/2) - calc_text_size("Winner is:") ,
+        mysettings.height*0.2);
+
+    MyText win("myfonts/arialmt.ttf", winner, 28);
+    win.setVisible(true);
+    win.setColor(Color::White);
+    win.setPosition(
+        (mysettings.width) * 0.5 - calc_text_size(winner, 28),
+        mysettings.height * 0.5);
+
+    MyText comment("myfonts/arialmt.ttf", "press space to continue", 28);
+    comment.setVisible(true);
+    comment.setColor(Color::White);
+    comment.setPosition(
+        (mysettings.width*0.4) - calc_text_size("press space to continue", 28),
+        mysettings.height * 0.9);
+
+    window.clear();
+    winneris.draw(window);
+    win.draw(window);
+    comment.draw(window);
+    window.display();
+
+    while (!Keyboard::isKeyPressed(Keyboard::Space));
+}//    winPlayerScreen("fist", window, mysettings);
 
 void splitGame(RenderWindow& window, Settings& mysettings) {
     //для каждой игры свой игрок и 
@@ -105,6 +140,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
     float teamTwoBaseX = mysettings.width;
     float teamTwoBaseY = mysettings.height / 2;
+
+    int  max_score_for_win = 5;
 
     /*============================ основной игрок =============================*/
     // игрок
@@ -273,14 +310,14 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         /* ============ захват ============*/
         int distance;
         if (Keyboard::isKeyPressed(Keyboard::E)) {
-            distance = calculate_distance(enemyflag.x_pos, player.x_pos, enemyflag.y_pos, player.y_pos);
+            distance = calc_distance(enemyflag.x_pos, player.x_pos, enemyflag.y_pos, player.y_pos);
             //distance = sqrt(pow((enemyflag.x_pos - player.x_pos), 2) + pow((enemyflag.y_pos - player.y_pos), 2));
             //cout << distance << endl;
             player.flag = (distance < mindist_to_flag);
         }
 
         if (Keyboard::isKeyPressed(Keyboard::O)) {
-            distance = calculate_distance(flag.x_pos, enemy.x_pos, flag.y_pos, enemy.y_pos);
+            distance = calc_distance(flag.x_pos, enemy.x_pos, flag.y_pos, enemy.y_pos);
             //distance = sqrt(pow((flag.x_pos - enemy.x_pos), 2) + pow((flag.y_pos - enemy.y_pos), 2));
             //cout << distance << endl;
             enemy.flag = (distance < mindist_to_flag);
@@ -392,7 +429,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         }
 
         
-        distance = calculate_distance(enemyflag.x_pos, teamOneBaseX, enemyflag.y_pos, teamOneBaseY);
+        distance = calc_distance(enemyflag.x_pos, teamOneBaseX, enemyflag.y_pos, teamOneBaseY);
         //distance = sqrt(pow((enemyflag.x_pos - teamOneBaseX), 2) + pow((enemyflag.y_pos - teamOneBaseY), 2));
         if (distance < mindist_to_flag) {
             enemyflag.set_position(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
@@ -403,7 +440,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         }
 
         
-        distance = calculate_distance(flag.x_pos, teamTwoBaseX, flag.y_pos, teamTwoBaseY);
+        distance = calc_distance(flag.x_pos, teamTwoBaseX, flag.y_pos, teamTwoBaseY);
         //distance = sqrt(pow((flag.x_pos - teamTwoBaseX), 2) + pow((flag.y_pos - teamTwoBaseY), 2));
         //cout << distance<<endl;
         if (distance < mindist_to_flag+flag.size) {
@@ -415,8 +452,11 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         }
 
         
-        window.clear();
+        /* победа и очки */
+        if (player.score >= max_score_for_win) { winPlayerScreen("PLAYER 1", window, mysettings); gameRun = false; }
+        if (enemy.score >= max_score_for_win) { winPlayerScreen("PLAYER 2", window, mysettings); gameRun = false; }
 
+        window.clear();
 
         gameMap.draw(window);
         window.draw(player_circle);
