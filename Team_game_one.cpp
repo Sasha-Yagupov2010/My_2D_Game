@@ -211,7 +211,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         float oldX2 = enemy.x_pos;
         float oldY2 = enemy.y_pos;
 
-        /* =================== движение ===================*/
+        /* =================== движение 1 ===================*/
         if (Keyboard::isKeyPressed(Keyboard::A)) {
             player.move(-speed, 0);
             player_circle.move(-speed, 0);
@@ -228,9 +228,10 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             player.move(0, speed);
             player_circle.move(0, speed);
         }
-        /* =================== движение ===================*/
+        /* =================== движение 1 ===================*/
 
-        /* =================== движение ===================*/
+
+        /* =================== движение 2 ===================*/
         if (Keyboard::isKeyPressed(Keyboard::J)) {
             enemy.move(-speed, 0);
             enemy_circle.move(-speed, 0);
@@ -247,7 +248,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             enemy.move(0, speed);
             enemy_circle.move(0, speed);
         }
-        /* =================== движение ===================*/
+        /* =================== движение 2 ===================*/
+
 
         /* ============ захват ============*/
         int distance;
@@ -263,6 +265,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             enemy.flag = (distance < mindist_to_flag);
         }
         /* ============ захват ============*/
+
 
         /* ============ стрельба ============*/
         if (Keyboard::isKeyPressed(Keyboard::Q)) {
@@ -287,7 +290,6 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             }
 
         }
-        
         /* ============ стрельба ============*/
 
 
@@ -296,21 +298,16 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         if (gameMap.checkCollision(player.x_pos, player.y_pos, player.size) ||
             player.x_pos < 0 || player.x_pos > mysettings.width - player.size ||
             player.y_pos < 0 || player.y_pos > mysettings.height - player.size) {
-
-            // Откатываем позицию
-            player.set_position(oldX, oldY);
+            player.set_position(oldX, oldY);            // Откатываем позицию
             player_circle.setPosition(oldX, oldY);
         }
 
         if (gameMap.checkCollision(enemy.x_pos, enemy.y_pos, enemy.size) ||
             enemy.x_pos < 0 || enemy.x_pos > mysettings.width - enemy.size ||
             enemy.y_pos < 0 || enemy.y_pos > mysettings.height - enemy.size) {
-
-            // Откатываем позицию
-            enemy.set_position(oldX2, oldY2);
+            enemy.set_position(oldX2, oldY2);           // Откатываем позицию
             enemy_circle.setPosition(oldX2, oldY2);
         }
-
 
 
         if (gameMap.checkCollision(gun1.startX, gun1.startY, shoot_ball_size)) {
@@ -359,7 +356,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             enemy.flag = false;
         }
 
-
+        cout << gun1.destroy(enemy.x_pos, enemy.y_pos, enemy.size) << endl;
         window.clear();
 
 

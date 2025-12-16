@@ -43,3 +43,10 @@ void ShootGun::resetTarget() {
     targetX = -1;
     targetY = -1;
 }
+
+bool ShootGun::destroy(float x, float y, float size)
+{
+    int distance = sqrt(pow((x - startX), 2) + pow((y - startY), 2));
+    if (distance < size && visible) return true;
+    return false;
+}

@@ -23,6 +23,8 @@ public:
 	bool step(float);
 	void unvis();
 	void resetTarget();
+
+	bool destroy(float, float, float);
 };
 
 
