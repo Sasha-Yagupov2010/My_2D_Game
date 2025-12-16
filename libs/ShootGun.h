@@ -24,7 +24,7 @@ public:
 	void unvis();
 	void resetTarget();
 
-	bool destroy(float, float, float);
+	bool checkDestroy(float, float, float);
 };
 
 

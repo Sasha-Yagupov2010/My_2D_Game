@@ -69,6 +69,24 @@ void menu(RenderWindow& window, Settings& mysettings, int& gameStarted)
     if (exit_button.is_pressed(window)) { window.close(); }
 
 }
+
+void run_shoots_logic(ShootGun& gun, RenderWindow& window, CircleShape& gun_circle, int shoot_speed) {
+    if (gun.visible)
+    {
+        gun.step(shoot_speed);
+        gun_circle.setPosition(gun.startX, gun.startY);
+        window.draw(gun_circle);
+
+        if (gun.startX == gun.targetX and gun.startY == gun.targetY) { gun.visible = false; }
+    }
+}
+
+float calculate_distance(float x1, float x2, float y1, float y2) {
+    float dx = x1 - x2;
+    float dy = y1 - y2;
+    return sqrt(dx * dx + dy * dy);
+}
+
 void splitGame(RenderWindow& window, Settings& mysettings) {
     //для каждой игры свой игрок и 
     const uint8_t mindist_to_flag = 12;
@@ -162,11 +180,13 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     score2_value.setVisible(true);
     score2_value.setColor(Color::Blue);
     score2_value.setPosition((mysettings.width - 200) * 0.9+100, 0);
+    
 
     /*===== пули =====*/
     const uint8_t shoot_speed = 4;
     const uint8_t shoot_ball_size = percent_of_resizing * 5 / 100;
 
+    //первая
     ShootGun gun1(15, 15);
     gun1.setPos(player.x_pos, player.y_pos);
     gun1.visible = false;
@@ -176,7 +196,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     gun1_circle.setFillColor(Color::White);
 
 
-
+    //вторая
     ShootGun gun2(15, 15);
     gun2.setPos(enemy.x_pos, enemy.y_pos);
     gun2.visible = false;
@@ -186,13 +206,12 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     gun2_circle.setFillColor(Color::White);
     /*===== пули =====*/
 
-
-    // Автоматический расчет размера тайлов относительно экрана
-    const int mapWidthTiles = 24;   // количество тайлов по ширине
-    const int mapHeightTiles = 16;  // количество тайлов по высоте
+                                                                        // Автоматический расчет размера тайлов относительно экрана
+    const int mapWidthTiles = 24;                                       // количество тайлов по ширине
+    const int mapHeightTiles = 16;                                      // количество тайлов по высоте
     int tileSize = min(mysettings.width / mapWidthTiles, mysettings.height / mapHeightTiles);
 
-    GameMap gameMap(mapWidthTiles, mapHeightTiles, tileSize);
+    GameMap gameMap(mapWidthTiles, mapHeightTiles, tileSize);           //поле
 
     if (!gameMap.loadFromFile("maps/fastrunner.txt", Color::White)) {
         cout << "error: map not loaded!" << endl;
@@ -254,13 +273,15 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         /* ============ захват ============*/
         int distance;
         if (Keyboard::isKeyPressed(Keyboard::E)) {
-            distance = sqrt(pow((enemyflag.x_pos - player.x_pos), 2) + pow((enemyflag.y_pos - player.y_pos), 2));
+            distance = calculate_distance(enemyflag.x_pos, player.x_pos, enemyflag.y_pos, player.y_pos);
+            //distance = sqrt(pow((enemyflag.x_pos - player.x_pos), 2) + pow((enemyflag.y_pos - player.y_pos), 2));
             //cout << distance << endl;
             player.flag = (distance < mindist_to_flag);
         }
 
         if (Keyboard::isKeyPressed(Keyboard::O)) {
-            distance = sqrt(pow((flag.x_pos - enemy.x_pos), 2) + pow((flag.y_pos - enemy.y_pos), 2));
+            distance = calculate_distance(flag.x_pos, enemy.x_pos, flag.y_pos, enemy.y_pos);
+            //distance = sqrt(pow((flag.x_pos - enemy.x_pos), 2) + pow((flag.y_pos - enemy.y_pos), 2));
             //cout << distance << endl;
             enemy.flag = (distance < mindist_to_flag);
         }
@@ -276,7 +297,6 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
                 gun1.setTarget(enemy.x_pos, enemy.y_pos);
                 gun1.count -= 1;
             }
-        
         }
 
         
@@ -288,26 +308,59 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
                 gun2.setTarget(player.x_pos, player.y_pos);
                 gun2.count -= 1;
             }
-
         }
         /* ============ стрельба ============*/
 
+
+        /*============ пуля попала ============*/
+        if (gun1.checkDestroy(enemy.x_pos, enemy.y_pos, enemy.size))
+        {
+            // Сброс врага
+            enemy.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);
+            enemy.flag = false;
+            enemy_circle.setPosition(teamTwoBaseX - enemy.size, teamTwoBaseY);
+
+            // Сброс флага врага (если он его нес)
+            flag.set_position(teamOneBaseX, teamOneBaseY);
+            flag_circle.setPosition(teamOneBaseX, teamOneBaseY);
+
+            // Пополнение патронов игроку (награда за попадание)
+            gun2.count = gun2.max_count; // Игрок пополнил патроны
+        }
+
+        if (gun2.checkDestroy(player.x_pos, player.y_pos, player.size))
+        {
+            // Сброс игрока
+            player.set_position(teamOneBaseX, teamOneBaseY);
+            player.flag = false;
+            player_circle.setPosition(teamOneBaseX, teamOneBaseY); 
+
+            // Сброс флага игрока (если он его нес)
+            enemyflag.set_position(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
+            enemyflag_circle.setPosition(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
+
+            // Пополнение патронов врагу (награда за попадание)
+            gun1.count = gun1.max_count; // Враг пополнил патроны
+        }
+        /*============ пуля попала ============*/
 
 
         /* ============ Проверяем коллизии ============*/
         if (gameMap.checkCollision(player.x_pos, player.y_pos, player.size) ||
             player.x_pos < 0 || player.x_pos > mysettings.width - player.size ||
-            player.y_pos < 0 || player.y_pos > mysettings.height - player.size) {
-            player.set_position(oldX, oldY);            // Откатываем позицию
-            player_circle.setPosition(oldX, oldY);
-        }
+            player.y_pos < 0 || player.y_pos > mysettings.height - player.size){
+            
+                player.set_position(oldX, oldY);            // Откатываем позицию
+                player_circle.setPosition(oldX, oldY);
+            }
 
         if (gameMap.checkCollision(enemy.x_pos, enemy.y_pos, enemy.size) ||
             enemy.x_pos < 0 || enemy.x_pos > mysettings.width - enemy.size ||
-            enemy.y_pos < 0 || enemy.y_pos > mysettings.height - enemy.size) {
-            enemy.set_position(oldX2, oldY2);           // Откатываем позицию
-            enemy_circle.setPosition(oldX2, oldY2);
-        }
+            enemy.y_pos < 0 || enemy.y_pos > mysettings.height - enemy.size){
+
+                enemy.set_position(oldX2, oldY2);           // Откатываем позицию
+                enemy_circle.setPosition(oldX2, oldY2);
+            }
 
 
         if (gameMap.checkCollision(gun1.startX, gun1.startY, shoot_ball_size)) {
@@ -323,6 +376,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         //exit to menu
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
             player.set_position(0, 0);
+            enemy.set_position(0, 0);
             gameRun = false;
         }
 
@@ -337,7 +391,9 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             flag_circle.setPosition(enemy.x_pos, enemy.y_pos);
         }
 
-        distance = sqrt(pow((enemyflag.x_pos - teamOneBaseX), 2) + pow((enemyflag.y_pos - teamOneBaseY), 2));
+        
+        distance = calculate_distance(enemyflag.x_pos, teamOneBaseX, enemyflag.y_pos, teamOneBaseY);
+        //distance = sqrt(pow((enemyflag.x_pos - teamOneBaseX), 2) + pow((enemyflag.y_pos - teamOneBaseY), 2));
         if (distance < mindist_to_flag) {
             enemyflag.set_position(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
             enemyflag_circle.setPosition(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
@@ -346,7 +402,9 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             player.flag = false;
         }
 
-        distance = sqrt(pow((flag.x_pos - teamTwoBaseX), 2) + pow((flag.y_pos - teamTwoBaseY), 2));
+        
+        distance = calculate_distance(flag.x_pos, teamTwoBaseX, flag.y_pos, teamTwoBaseY);
+        //distance = sqrt(pow((flag.x_pos - teamTwoBaseX), 2) + pow((flag.y_pos - teamTwoBaseY), 2));
         //cout << distance<<endl;
         if (distance < mindist_to_flag+flag.size) {
             flag.set_position(teamOneBaseX, teamOneBaseY);
@@ -356,7 +414,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             enemy.flag = false;
         }
 
-        cout << gun1.destroy(enemy.x_pos, enemy.y_pos, enemy.size) << endl;
+        
         window.clear();
 
 
@@ -378,23 +436,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         
 
         //пули, обработка
-        if (gun1.visible) 
-        {
-            gun1.step(shoot_speed);
-            gun1_circle.setPosition(gun1.startX, gun1.startY);
-            window.draw(gun1_circle); 
-
-            if (gun1.startX == gun1.targetX and gun1.startY == gun1.targetY) { gun1.visible = false; }
-        }
-
-        if (gun2.visible)
-        {
-            gun2.step(shoot_speed);
-            gun2_circle.setPosition(gun2.startX, gun2.startY);
-            window.draw(gun2_circle);
-
-            if (gun2.startX == gun2.targetX and gun2.startY == gun2.targetY) { gun2.visible = false; }
-        }
+        run_shoots_logic(gun1, window, gun1_circle, shoot_speed);
+        run_shoots_logic(gun2, window, gun2_circle, shoot_speed);
 
         window.display();
     }
