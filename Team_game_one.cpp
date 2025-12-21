@@ -1,11 +1,16 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <string>
 #include <Windows.h>
+#include <vector>
+#include <algorithm>
+#include <chrono>
 
 using namespace std;
 using namespace sf;
+
 
 #include "libs/Settings.h"
 #include "libs/Player.h"
@@ -15,6 +20,97 @@ using namespace sf;
 #include "libs/Flag.h"
 #include "libs/ShootGun.h"
 
+vector<string> getMapFiles(const string& directoryPath, const string& extension = ".map") {
+    vector<string> maps;
+
+    string searchPath = directoryPath + "\\*" + extension;
+
+    WIN32_FIND_DATAA findData;
+    HANDLE hFind = FindFirstFileA(searchPath.c_str(), &findData);
+
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            // Проверяем, не директория ли это
+            if (!(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                string filename = findData.cFileName;
+                maps.push_back(filename);
+            }
+        } while (FindNextFileA(hFind, &findData) != 0);
+
+        FindClose(hFind);
+    }
+
+    // Сортируем по алфавиту
+    sort(maps.begin(), maps.end());
+
+    return maps;
+}
+
+
+string selectMapMenu(RenderWindow& window, Settings& mysettings){
+
+    MyText menu_text("myfonts/arial_bolditalicmt.ttf", "Select map", 72);
+    menu_text.setVisible(true);
+    menu_text.setColor(Color::White);
+    menu_text.setPosition((mysettings.width - 400) / 2, mysettings.height * 0.1);
+
+    MyText maps_list("myfonts/arialmt.ttf", "");
+    maps_list.setVisible(true);
+    maps_list.setColor(Color::White);
+    maps_list.setPosition((mysettings.width - 200) / 2, mysettings.height * 0.3);
+
+    MyText selected_map("myfonts/arialmt.ttf", "",28);
+    selected_map.setVisible(true);
+    selected_map.setColor(Color::White);
+    selected_map.setPosition((mysettings.width - 200) / 2, mysettings.height * 0.7);
+
+    string list = "";
+    vector <string> maps = getMapFiles("maps",".txt");
+    for (auto i :maps) {
+        list += i += "\n";
+    }
+    cout << list;
+    maps_list.setString(list);
+    
+    
+    bool runWhile = 1;
+
+    string out="fastrunner.txt";//default
+    int index = 0;
+    Event event;
+    while (runWhile) {
+
+
+        while (window.pollEvent(event)){ if(event.type == Event::Closed) window.close(); }
+
+        if (Keyboard::isKeyPressed(Keyboard::Up))
+        {
+            index--;
+            while (Keyboard::isKeyPressed(Keyboard::Up));
+        }
+
+        if (Keyboard::isKeyPressed(Keyboard::Down))
+        {
+            index++;
+            while (Keyboard::isKeyPressed(Keyboard::Down));
+        }
+
+        if (index < 0) index = 0;
+        if (index > maps.size()-1)index = maps.size()-1;
+        out = maps[index];
+
+        if (Keyboard::isKeyPressed(Keyboard::Enter)) 
+            runWhile = 0;
+
+        selected_map.setString(out);
+        window.clear();
+        maps_list.draw(window);
+        menu_text.draw(window);
+        selected_map.draw(window);
+        window.display();
+    }
+    return out;
+}
 
 void menu(RenderWindow& window, Settings& mysettings, int& gameStarted)
 {
@@ -119,12 +215,17 @@ void winPlayerScreen(string winner, RenderWindow& window, Settings& mysettings)
     comment.draw(window);
     window.display();
 
-    while (!Keyboard::isKeyPressed(Keyboard::Space));
+    Event event;
+    while (window.pollEvent(event)) {
+        if (event.type == Event::KeyPressed && event.key.code == Keyboard::Space) break;
+        if (event.type == Event::Closed) window.close();
+    }
+
 }//    winPlayerScreen("fist", window, mysettings);
 
 void splitGame(RenderWindow& window, Settings& mysettings) {
     //для каждой игры свой игрок и 
-    const uint8_t mindist_to_flag = 12;
+    uint8_t mindist_to_flag = mysettings.minDistToFlag;
 
     Player player;
     Flag flag;
@@ -141,7 +242,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     float teamTwoBaseX = mysettings.width;
     float teamTwoBaseY = mysettings.height / 2;
 
-    int  max_score_for_win = 5;
+    int  max_score_for_win = mysettings.scoreForWin;
 
     /*============================ основной игрок =============================*/
     // игрок
@@ -243,6 +344,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     gun2_circle.setFillColor(Color::White);
     /*===== пули =====*/
 
+    string mapname = selectMapMenu(window, mysettings);
+    string map_path = "maps/" + mapname;
                                                                         // Автоматический расчет размера тайлов относительно экрана
     const int mapWidthTiles = 24;                                       // количество тайлов по ширине
     const int mapHeightTiles = 16;                                      // количество тайлов по высоте
@@ -250,7 +353,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
     GameMap gameMap(mapWidthTiles, mapHeightTiles, tileSize);           //поле
 
-    if (!gameMap.loadFromFile("maps/fastrunner.txt", Color::White)) {
+    if (!gameMap.loadFromFile(map_path, Color::White)) {
         cout << "error: map not loaded!" << endl;
     }
 
@@ -311,15 +414,11 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         int distance;
         if (Keyboard::isKeyPressed(Keyboard::E)) {
             distance = calc_distance(enemyflag.x_pos, player.x_pos, enemyflag.y_pos, player.y_pos);
-            //distance = sqrt(pow((enemyflag.x_pos - player.x_pos), 2) + pow((enemyflag.y_pos - player.y_pos), 2));
-            //cout << distance << endl;
             player.flag = (distance < mindist_to_flag);
         }
 
         if (Keyboard::isKeyPressed(Keyboard::O)) {
             distance = calc_distance(flag.x_pos, enemy.x_pos, flag.y_pos, enemy.y_pos);
-            //distance = sqrt(pow((flag.x_pos - enemy.x_pos), 2) + pow((flag.y_pos - enemy.y_pos), 2));
-            //cout << distance << endl;
             enemy.flag = (distance < mindist_to_flag);
         }
         /* ============ захват ============*/
@@ -430,7 +529,6 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
         
         distance = calc_distance(enemyflag.x_pos, teamOneBaseX, enemyflag.y_pos, teamOneBaseY);
-        //distance = sqrt(pow((enemyflag.x_pos - teamOneBaseX), 2) + pow((enemyflag.y_pos - teamOneBaseY), 2));
         if (distance < mindist_to_flag) {
             enemyflag.set_position(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
             enemyflag_circle.setPosition(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
@@ -441,8 +539,6 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
         
         distance = calc_distance(flag.x_pos, teamTwoBaseX, flag.y_pos, teamTwoBaseY);
-        //distance = sqrt(pow((flag.x_pos - teamTwoBaseX), 2) + pow((flag.y_pos - teamTwoBaseY), 2));
-        //cout << distance<<endl;
         if (distance < mindist_to_flag+flag.size) {
             flag.set_position(teamOneBaseX, teamOneBaseY);
             flag_circle.setPosition(teamOneBaseX, teamOneBaseY);
@@ -609,7 +705,8 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
         }
 
         if (Keyboard::isKeyPressed(Keyboard::E)) {
-            int distance = sqrt(pow((enemyflag.x_pos - player.x_pos), 2) + pow((enemyflag.y_pos - player.y_pos), 2));
+            int distance = calc_distance(enemyflag.x_pos, player.x_pos, enemyflag.y_pos, player.y_pos);
+
             if (distance < mindist_to_flag) player.flag = true; 
             else player.flag = false;
         }
@@ -636,7 +733,7 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
             enemyflag_circle.setPosition(enemyflag.x_pos, enemyflag.y_pos);
         }
 
-        int distance = sqrt(pow((enemyflag.x_pos - teamOneBaseX), 2) + pow((enemyflag.y_pos - teamOneBaseY), 2));
+        int distance = calc_distance(enemyflag.x_pos, teamOneBaseX, enemyflag.y_pos, teamOneBaseY);
         if (distance < mindist_to_flag) {
             enemyflag.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);
             enemyflag_circle.setPosition(teamTwoBaseX - enemy.size, teamTwoBaseY);
@@ -698,14 +795,22 @@ int main()
         }
 
         //menu
-        if (gameStarted==1) {
-            singleGame(window, mysettings); 
-            gameStarted = false;
-        }
-        if (gameStarted == 2) {
+        switch (gameStarted)
+        {
+        case(1):
+            singleGame(window, mysettings);
+            gameStarted = 0;
+            break;
+
+        case(2):
             splitGame(window, mysettings);
-            gameStarted = false;
+            gameStarted = 0;
+            break;
+
+        default:
+            break;
         }
+
         menu(window, mysettings, gameStarted);
     }
      return 0;
