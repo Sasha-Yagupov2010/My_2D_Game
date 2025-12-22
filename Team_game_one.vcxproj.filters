@@ -36,6 +36,9 @@
     <ClCompile Include="libs\ShootGun.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerBoost.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libs\Flag.h">
@@ -59,5 +62,11 @@
     <ClInclude Include="libs\ShootGun.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="PlayerBoost.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
 </Project>
