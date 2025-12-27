@@ -37,7 +37,7 @@ public:
     bool teleport = false; // активирован телепорт
     bool superSpeed = false;
 
-    PlayerBoost() {}
+    PlayerBoost();
 
     // === МЕТОДЫ ДЛЯ ИГРОКА ===
 
@@ -63,11 +63,11 @@ public:
     void clearAllEffects();
 
     // Получить оставшееся время эффекта (для UI)
-    int getRemainingSpeedTime() const {}
+    int getRemainingSpeedTime() const;
 
-    int getRemainingGodTime() const {}
+    int getRemainingGodTime() const;
 
-    int getRemainingShieldTime() const {}
+    int getRemainingShieldTime() const;
 };
 
 #endif // PlayerBoost_H
