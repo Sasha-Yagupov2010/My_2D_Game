@@ -57,7 +57,7 @@ public:
 
 
     void activateRandomEffect();
-    // === ћ≈“ќƒџ ƒЋя  ј–“џ ===
+
 
     // ќчистить все бусты с карты
     void clearAllEffects();
