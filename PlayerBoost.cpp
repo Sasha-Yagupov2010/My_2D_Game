@@ -13,8 +13,9 @@ void PlayerBoost::activateSpeed() {
 }
 
 void PlayerBoost::activateShield() {
-    holdFlag = true;
-    // Щит действует пока флаг не сбросят
+    shield = true;
+    shieldEndTime = std::chrono::steady_clock::now() +
+        std::chrono::seconds(SHIELD_DURATION);
 }
 
 void PlayerBoost::activateGod() {
@@ -43,70 +44,12 @@ void PlayerBoost::updateEffects() {
         god = false;
     }
 
-    // Щит сбрасывается отдельно при потере флага
-}
-
-// Сброс щита (при потере флага)
-void PlayerBoost::resetShield() {
-    holdFlag = false;
+    if (shield && now > shieldEndTime) {
+        shield = false;
+    }
 }
 
 // === МЕТОДЫ ДЛЯ КАРТЫ ===
-
-// Создать случайный буст на карте
-void PlayerBoost::spawnRandomBoost(int mapWidth, int mapHeight, const std::vector<std::vector<int>>& map) {
-    std::uniform_int_distribution<int> distType(0, 3);
-    std::uniform_int_distribution<int> distX(1, mapWidth - 2);
-    std::uniform_int_distribution<int> distY(1, mapHeight - 2);
-
-    char types[] = { 'S', 'H', 'G', 'T' };
-    char type = types[distType(rng)];
-
-    // Ищем свободное место (где нет стены)
-    int x, y;
-    int attempts = 0;
-    do {
-        x = distX(rng);
-        y = distY(rng);
-        attempts++;
-    } while (map[y][x] == 1 && attempts < 50); // 1 - стена
-
-    if (attempts < 50) {
-        BoostItem newBoost{ x, y, type, true, std::chrono::steady_clock::now() };
-        activeBoosts.push_back(newBoost);
-    }
-}
-
-// Обновить бусты на карте (исчезновение через время)
-void PlayerBoost::updateBoosts() {
-    auto now = std::chrono::steady_clock::now();
-    auto duration = std::chrono::seconds(30); // Буст живет 30 секунд
-
-    activeBoosts.erase(
-        std::remove_if(activeBoosts.begin(), activeBoosts.end(),
-            [now, duration](const BoostItem& boost) {
-                return !boost.active || (now - boost.spawnTime) > duration;
-            }),
-        activeBoosts.end()
-    );
-}
-
-// Проверить коллизию игрока с бустами
-char PlayerBoost::checkCollision(int playerX, int playerY) {
-    for (auto& boost : activeBoosts) {
-        if (boost.active && boost.x == playerX && boost.y == playerY) {
-            boost.active = false; // Подобрали
-            return boost.type;
-        }
-    }
-    return '0'; // Ничего не подобрали
-}
-
-
-// Очистить все бусты с карты
-void PlayerBoost::clearAllBoosts() {
-    activeBoosts.clear();
-}
 
 // Получить оставшееся время эффекта (для UI)
 int  PlayerBoost::getRemainingSpeedTime() const {
@@ -124,3 +67,34 @@ int  PlayerBoost::getRemainingGodTime() const {
         godEndTime - now).count();
     return (remaining > 0) ? static_cast<int>(remaining) : 0;
 }
+
+int  PlayerBoost::getRemainingShieldTime() const {
+    if (!shield) return 0;
+    auto now = std::chrono::steady_clock::now();
+    auto remaining = std::chrono::duration_cast<std::chrono::seconds>(
+        shieldEndTime - now).count();
+    return (remaining > 0) ? static_cast<int>(remaining) : 0;
+}
+
+void PlayerBoost::activateRandomEffect() {
+    std::uniform_int_distribution<> dist(0, 3);
+    int randomNumber = dist(rng);
+
+    switch (randomNumber)
+    {
+    case(0):
+        activateSpeed();
+        break;
+
+    case(1):
+        activateGod();
+        break;
+    case(2):
+        activateShield();
+        break;
+    default:
+        std::cout << "ошибка с выбором рандомного эффекта" << std::endl;
+        break;
+    }
+}
+
