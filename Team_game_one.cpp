@@ -509,6 +509,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         firstBoost.updateEffects();
         enemyBoost.updateEffects();
         
+        
         /*============= супер способности =============*/
 
         //выходим в меню

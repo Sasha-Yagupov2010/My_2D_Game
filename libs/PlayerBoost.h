@@ -16,14 +16,12 @@ private:
     std::chrono::steady_clock::time_point godEndTime;
 
     // Координаты бустов
-    struct BoostItem {
-        int x, y;
-        char type; // 'S'-speed, 'H'-shield, 'G'-god, 'T'-teleport
-        bool active;
-        std::chrono::steady_clock::time_point spawnTime;
-    };
 
-    std::vector<BoostItem> activeBoosts;
+    int x, y;
+    char type; // 'S'-speed, 'H'-shield, 'G'-god, 'T'-teleport
+    bool active;
+    std::chrono::steady_clock::time_point spawnTime;
+
     std::mt19937 rng;
 
     // Время действия эффектов (в секундах)
@@ -71,6 +69,7 @@ public:
 
     bool isGod_On() { return god; }
     bool isShield_On() { return shield; }
+
 };
 
 #endif // PlayerBoost_H
