@@ -138,8 +138,8 @@
     <ClCompile Include="libs\MyButton.cpp" />
     <ClCompile Include="libs\Mytext.cpp" />
     <ClCompile Include="libs\Player.cpp" />
+    <ClCompile Include="libs\PlayerBoost.cpp" />
     <ClCompile Include="libs\ShootGun.cpp" />
-    <ClCompile Include="PlayerBoost.cpp" />
     <ClCompile Include="Team_game_one.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -148,9 +148,9 @@
     <ClInclude Include="libs\MyButton.h" />
     <ClInclude Include="libs\Mytext.h" />
     <ClInclude Include="libs\Player.h" />
+    <ClInclude Include="libs\PlayerBoost.h" />
     <ClInclude Include="libs\Settings.h" />
     <ClInclude Include="libs\ShootGun.h" />
-    <ClInclude Include="PlayerBoost.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

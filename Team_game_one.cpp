@@ -19,6 +19,7 @@ using namespace sf;
 #include "libs/GameMap.h"
 #include "libs/Flag.h"
 #include "libs/ShootGun.h"
+#include "libs/PlayerBoost.h"
 
 vector<string> getMapFiles(const string& directoryPath, const string& extension = ".map") {
     vector<string> maps;
@@ -232,6 +233,9 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
     Player enemy;
     Flag enemyflag;
+
+    PlayerBoost firstBoost;
+    PlayerBoost enemyBoost;
 
     uint16_t percent_of_resizing = (mysettings.height / 400 * 100);
 
@@ -450,33 +454,23 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
         /*============ пуля попала ============*/
         if (gun1.checkDestroy(enemy.x_pos, enemy.y_pos, enemy.size))
-        {
-            // Сброс врага
-            enemy.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);
+        {                                                   
+            enemy.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);        // Сброс врага 
             enemy.flag = false;
             enemy_circle.setPosition(teamTwoBaseX - enemy.size, teamTwoBaseY);
-
-            // Сброс флага врага (если он его нес)
-            flag.set_position(teamOneBaseX, teamOneBaseY);
-            flag_circle.setPosition(teamOneBaseX, teamOneBaseY);
-
-            // Пополнение патронов игроку (награда за попадание)
-            gun2.count = gun2.max_count; // Игрок пополнил патроны
+            flag.set_position(teamOneBaseX, teamOneBaseY);                      // Сброс флага врага (если он его нес)
+            flag_circle.setPosition(teamOneBaseX, teamOneBaseY);                // Пополнение патронов игроку (награда за попадание)
+            gun2.count = gun2.max_count;                                        // Игрок пополнил патроны
         }
 
         if (gun2.checkDestroy(player.x_pos, player.y_pos, player.size))
         {
-            // Сброс игрока
-            player.set_position(teamOneBaseX, teamOneBaseY);
+            player.set_position(teamOneBaseX, teamOneBaseY);                    // Сброс игрока
             player.flag = false;
             player_circle.setPosition(teamOneBaseX, teamOneBaseY); 
-
-            // Сброс флага игрока (если он его нес)
-            enemyflag.set_position(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
+            enemyflag.set_position(teamTwoBaseX - enemyflag.size, teamTwoBaseY);// Сброс флага игрока (если он его нес)
             enemyflag_circle.setPosition(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
-
-            // Пополнение патронов врагу (награда за попадание)
-            gun1.count = gun1.max_count; // Враг пополнил патроны
+            gun1.count = gun1.max_count;                                        // Враг пополнил патроны
         }
         /*============ пуля попала ============*/
 
@@ -486,7 +480,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             player.x_pos < 0 || player.x_pos > mysettings.width - player.size ||
             player.y_pos < 0 || player.y_pos > mysettings.height - player.size){
             
-                player.set_position(oldX, oldY);            // Откатываем позицию
+                player.set_position(oldX, oldY);                                // Откатываем позицию
                 player_circle.setPosition(oldX, oldY);
             }
 
@@ -494,7 +488,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             enemy.x_pos < 0 || enemy.x_pos > mysettings.width - enemy.size ||
             enemy.y_pos < 0 || enemy.y_pos > mysettings.height - enemy.size){
 
-                enemy.set_position(oldX2, oldY2);           // Откатываем позицию
+                enemy.set_position(oldX2, oldY2);                               // Откатываем позицию
                 enemy_circle.setPosition(oldX2, oldY2);
             }
 
@@ -508,15 +502,23 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         }
         /* ============ Проверяем коллизии ============*/
 
+        /*============= супер способности =============*/
+        enemyBoost.activateRandomEffect();
+        firstBoost.activateRandomEffect();
 
-        //exit to menu
+        firstBoost.updateEffects();
+        enemyBoost.updateEffects();
+        
+        /*============= супер способности =============*/
+
+        //выходим в меню
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
             player.set_position(0, 0);
             enemy.set_position(0, 0);
             gameRun = false;
         }
 
-        //move flag
+        //флаг тащим
         if (player.flag) {
             enemyflag.set_position(player.x_pos, player.y_pos);
             enemyflag_circle.setPosition(player.x_pos, player.y_pos);

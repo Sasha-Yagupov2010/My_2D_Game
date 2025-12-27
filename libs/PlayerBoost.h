@@ -68,6 +68,9 @@ public:
     int getRemainingGodTime() const;
 
     int getRemainingShieldTime() const;
+
+    bool isGod_On() { return god; }
+    bool isShield_On() { return shield; }
 };
 
 #endif // PlayerBoost_H

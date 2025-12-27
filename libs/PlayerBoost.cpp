@@ -77,7 +77,7 @@ int  PlayerBoost::getRemainingShieldTime() const {
 }
 
 void PlayerBoost::activateRandomEffect() {
-    std::uniform_int_distribution<> dist(0, 3);
+    std::uniform_int_distribution<> dist(0, 2);
     int randomNumber = dist(rng);
 
     switch (randomNumber)
@@ -94,6 +94,7 @@ void PlayerBoost::activateRandomEffect() {
         break;
     default:
         std::cout << "ошибка с выбором рандомного эффекта" << std::endl;
+        std::cout << randomNumber;
         break;
     }
 }
