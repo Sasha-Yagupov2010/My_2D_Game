@@ -570,7 +570,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             enemyflag_circle.setPosition(player.x_pos, player.y_pos);
         }
 
-        if (enemy.flag and firstBoost.shield) {
+        if (enemy.flag and !firstBoost.shield) {
             flag.set_position(enemy.x_pos, enemy.y_pos);
             flag_circle.setPosition(enemy.x_pos, enemy.y_pos);
         }
