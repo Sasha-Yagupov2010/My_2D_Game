@@ -1,12 +1,8 @@
-#ifndef PlayerBoost_H
-#define PlayerBoost_H
+#ifndef PLAYERBOOST_H
+#define PLAYERBOOST_H
 
-#include <Windows.h>
 #include <chrono>
-#include <vector>
-#include <algorithm>
 #include <random>
-#include <iostream>
 
 class PlayerBoost {
 private:
@@ -19,9 +15,12 @@ private:
     std::mt19937 rng;
 
     // Время действия эффектов (в секундах)
-    const int SPEED_DURATION = 10;
-    const int SHIELD_DURATION = 10; 
-    const int GOD_DURATION = 5;
+    static constexpr int DELAY_DURATION = 15;
+    static constexpr int SPEED_DURATION = 10;
+    static constexpr int SHIELD_DURATION = 10;
+    static constexpr int GOD_DURATION = 5;
+
+
 
 public:
     bool god = false;
@@ -34,33 +33,27 @@ public:
 
     // Активация эффекта
     void activateSpeed();
-
     void activateShield();
-
     void activateGod();
-
 
     // Проверка времени эффектов (вызывать каждый кадр/тик)
     void updateEffects();
-
-
+    bool canActivateNewEffect() const;
     void activateRandomEffect();
-
 
     // Очистить все бусты с карты
     void clearAllEffects();
 
     // Получить оставшееся время эффекта (для UI)
     int getRemainingSpeedTime() const;
-
     int getRemainingGodTime() const;
-
     int getRemainingShieldTime() const;
 
-    bool isGod_On() { return god; }
-    bool isShield_On() { return shield; }
-    bool isSpeed_On() { return superSpeed; }
+    // Геттеры для проверки состояния эффектов
+    bool isGod_On() const { return god; }
+    bool isShield_On() const { return shield; }
+    bool isSpeed_On() const { return superSpeed; }
 
 };
 
-#endif // PlayerBoost_H
+#endif // PLAYERBOOST_H
