@@ -10,26 +10,36 @@ void PlayerBoost::activateSpeed() {
     superSpeed = true;
     speedEndTime = std::chrono::steady_clock::now() +
         std::chrono::seconds(SPEED_DURATION);
+
+    delay = std::chrono::steady_clock::now() +
+        std::chrono::seconds(SPEED_DURATION) +
+        std::chrono::seconds(DELAY_DURATION);
 }
 
 void PlayerBoost::activateShield() {
     shield = true;
     shieldEndTime = std::chrono::steady_clock::now() +
         std::chrono::seconds(SHIELD_DURATION);
+
+    delay = std::chrono::steady_clock::now() +
+        std::chrono::seconds(SPEED_DURATION) +
+        std::chrono::seconds(DELAY_DURATION);
 }
 
 void PlayerBoost::activateGod() {
     god = true;
     godEndTime = std::chrono::steady_clock::now() +
         std::chrono::seconds(GOD_DURATION);
+
+    delay = std::chrono::steady_clock::now() +
+        std::chrono::seconds(SPEED_DURATION) +
+        std::chrono::seconds(DELAY_DURATION);
 }
 
-void PlayerBoost::activateTeleport(int& playerX, int& playerY, int mapWidth, int mapHeight) {
-    std::uniform_int_distribution<int> distX(1, mapWidth - 2);
-    std::uniform_int_distribution<int> distY(1, mapHeight - 2);
-    playerX = distX(rng);
-    playerY = distY(rng);
-    teleport = true;
+void PlayerBoost::clearAllEffects() {
+    god = false;
+    superSpeed = false;
+    shield = false;
 }
 
 // Проверка времени эффектов (вызывать каждый кадр/тик)
@@ -77,6 +87,9 @@ int  PlayerBoost::getRemainingShieldTime() const {
 }
 
 void PlayerBoost::activateRandomEffect() {
+    auto now = std::chrono::steady_clock::now();
+    //if(now - delay > DELAY_DURATION) return;
+    if (god || shield || superSpeed) return;
     std::uniform_int_distribution<> dist(0, 2);
     int randomNumber = dist(rng);
 

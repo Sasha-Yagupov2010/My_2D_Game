@@ -14,25 +14,18 @@ private:
     std::chrono::steady_clock::time_point speedEndTime;
     std::chrono::steady_clock::time_point shieldEndTime;
     std::chrono::steady_clock::time_point godEndTime;
-
-    // Координаты бустов
-
-    int x, y;
-    char type; // 'S'-speed, 'H'-shield, 'G'-god, 'T'-teleport
-    bool active;
-    std::chrono::steady_clock::time_point spawnTime;
+    std::chrono::steady_clock::time_point delay;
 
     std::mt19937 rng;
 
     // Время действия эффектов (в секундах)
     const int SPEED_DURATION = 10;
-    const int SHIELD_DURATION = 10; // пока флаг не сбросится
+    const int SHIELD_DURATION = 10; 
     const int GOD_DURATION = 5;
 
 public:
     bool god = false;
     bool shield = false; // щит для флага
-    bool teleport = false; // активирован телепорт
     bool superSpeed = false;
 
     PlayerBoost();
@@ -45,9 +38,6 @@ public:
     void activateShield();
 
     void activateGod();
-
-
-    void activateTeleport(int& playerX, int& playerY, int mapWidth, int mapHeight);
 
 
     // Проверка времени эффектов (вызывать каждый кадр/тик)
@@ -69,6 +59,7 @@ public:
 
     bool isGod_On() { return god; }
     bool isShield_On() { return shield; }
+    bool isSpeed_On() { return superSpeed; }
 
 };
 

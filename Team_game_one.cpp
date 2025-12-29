@@ -530,6 +530,9 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
         firstBoost.updateEffects();
         enemyBoost.updateEffects();
+
+        cout << firstBoost.god << firstBoost.shield << firstBoost.superSpeed << endl;
+        cout << enemyBoost.god << enemyBoost.shield << enemyBoost.superSpeed << endl;
         
         
         /*============= супер способности =============*/
