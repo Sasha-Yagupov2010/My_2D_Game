@@ -10,6 +10,7 @@
 
 using namespace std;
 using namespace sf;
+using namespace chrono;
 
 
 #include "libs/Settings.h"
@@ -364,9 +365,20 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     bool gameRun = true;
     uint8_t speed = player.speed;
 
+    /*=== таймеры ===*/
+    const uint8_t resetMIN_const = 3;
+    auto resetMIN = chrono::seconds(resetMIN_const);
+    auto now = steady_clock::now();
+    steady_clock::time_point resetFirst;
+    steady_clock::time_point resetEnemy;
+
+    resetFirst = now - resetMIN;;
+    resetEnemy = now - resetMIN;;
 
     while (gameRun)
     {
+        now = steady_clock::now();
+
         // Сохраняем старую позицию для отката при коллизии
         float oldX = player.x_pos;
         float oldY = player.y_pos;
@@ -452,25 +464,35 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         /* ============ стрельба ============*/
 
 
-        /*============ пуля попала ============*/
+            /*============ пуля попала ============*/
         if (gun1.checkDestroy(enemy.x_pos, enemy.y_pos, enemy.size))
-        {                                                   
-            enemy.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);        // Сброс врага 
-            enemy.flag = false;
-            enemy_circle.setPosition(teamTwoBaseX - enemy.size, teamTwoBaseY);
-            flag.set_position(teamOneBaseX, teamOneBaseY);                      // Сброс флага врага (если он его нес)
-            flag_circle.setPosition(teamOneBaseX, teamOneBaseY);                // Пополнение патронов игроку (награда за попадание)
-            gun2.count = gun2.max_count;                                        // Игрок пополнил патроны
+        {
+            if (now - resetFirst > resetMIN) {                                      //убираем нечестность
+                resetFirst = now;
+                enemy.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);        // Сброс врага 
+                enemy.flag = false;
+                enemy_circle.setPosition(teamTwoBaseX - enemy.size, teamTwoBaseY);
+                flag.set_position(teamOneBaseX, teamOneBaseY);                      // Сброс флага врага (если он его нес)
+                flag_circle.setPosition(teamOneBaseX, teamOneBaseY);                // Пополнение патронов игроку (награда за попадание)
+                gun2.count = gun2.max_count;
+            }
+                                                                                    // Игрок пополнил патроны
         }
+        
 
+        
         if (gun2.checkDestroy(player.x_pos, player.y_pos, player.size))
         {
-            player.set_position(teamOneBaseX, teamOneBaseY);                    // Сброс игрока
-            player.flag = false;
-            player_circle.setPosition(teamOneBaseX, teamOneBaseY); 
-            enemyflag.set_position(teamTwoBaseX - enemyflag.size, teamTwoBaseY);// Сброс флага игрока (если он его нес)
-            enemyflag_circle.setPosition(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
-            gun1.count = gun1.max_count;                                        // Враг пополнил патроны
+            if (now - resetEnemy > resetMIN) {
+                resetEnemy = now;
+                player.set_position(teamOneBaseX, teamOneBaseY);                    // Сброс игрока
+                player.flag = false;
+                player_circle.setPosition(teamOneBaseX, teamOneBaseY);
+                enemyflag.set_position(teamTwoBaseX - enemyflag.size, teamTwoBaseY);// Сброс флага игрока (если он его нес)
+                enemyflag_circle.setPosition(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
+                gun1.count = gun1.max_count;
+            }
+                                       // Враг пополнил патроны
         }
         /*============ пуля попала ============*/
 
