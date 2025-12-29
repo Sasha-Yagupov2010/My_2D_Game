@@ -633,6 +633,9 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     }
 }
 
+int randomInt(int min, int max) {
+    return min + rand() % (max - min + 1);
+}
 
 void singleGame(RenderWindow& window, Settings& mysettings) {
     //для каждой игры свой игрок и 
@@ -913,9 +916,11 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
 
         //====================================================================bot logic
 
-        //====================================================================bot logic
-
         int targetX, targetY;
+        int smalltargX, smalltargY;
+        static int waveCounter = 0; // Счетчик для волнообразного движения
+        const int WAVE_AMPLITUDE = 150; // Амплитуда волны по Y (увеличена)
+        const int WAVE_FREQUENCY = 50; // Частота волны
 
         // Перемещение бота
         if (bot.flag) {
@@ -929,13 +934,48 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
             targetY = flag.y_pos;
         }
 
-        // Вычисляем расстояние до цели
-        float dx = targetX - bot.x_pos;
-        float dy = targetY - bot.y_pos;
+        // Создаем волнообразное движение с увеличенной амплитудой
+        waveCounter++;
+        if (waveCounter > 360) waveCounter = 0;
+
+        // Вычисляем синусоидальное отклонение по Y
+        float waveOffset = sin(waveCounter * 3.14159 / WAVE_FREQUENCY) * WAVE_AMPLITUDE;
+
+        // Основное направление к цели
+        float dirX = targetX - bot.x_pos;
+        float dirY = targetY - bot.y_pos;
+        float distanceToTarget = sqrt(dirX * dirX + dirY * dirY);
+
+        // Нормализуем направление
+        if (distanceToTarget > 0) {
+            dirX /= distanceToTarget;
+            dirY /= distanceToTarget;
+        }
+
+        // Создаем промежуточную цель с волнообразным отклонением
+        smalltargX = bot.x_pos + dirX * 100; // На 100 пикселей вперед по направлению
+        smalltargY = bot.y_pos + dirY * 100 + waveOffset;
+
+        // Ограничиваем Y в пределах карты
+        if (smalltargY < bot.size) smalltargY = bot.size;
+        if (smalltargY > mysettings.height - bot.size) smalltargY = mysettings.height - bot.size;
+
+        // Если близко к основной цели, идем прямо к ней
+        if (distanceToTarget < 200) {
+            smalltargX = targetX;
+            smalltargY = targetY;
+        }
+
+        //cout << "Bot: " << bot.x_pos << ", " << bot.y_pos;
+        //cout << " | Target: " << smalltargX << ", " << smalltargY << endl;
+
+        // Вычисляем расстояние до промежуточной цели
+        float dx = smalltargX - bot.x_pos;
+        float dy = smalltargY - bot.y_pos;
         distance = sqrt(dx * dx + dy * dy);
 
         // Если не достигли цели
-        if (distance > bot.size) {
+        if (distance > bot.size / 2) { // Уменьшил порог для более точного движения
             // Вычисляем шаг с учетом скорости
             float stepX = (dx / distance) * bot.speed;
             float stepY = (dy / distance) * bot.speed;
@@ -951,11 +991,13 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
         }
         else {
             // Достигли цели
-            if (!bot.flag && distance <= bot.size) {
+            if (!bot.flag && distanceToTarget <= bot.size) {
                 bot.flag = true;  // Подобрали флаг
+                waveCounter = 0;  // Сбрасываем счетчик волны
             }
-            else if (bot.flag && distance <= bot.size) {
+            else if (bot.flag && distanceToTarget <= bot.size) {
                 bot.flag = false;  // Доставили флаг на базу
+                waveCounter = 0;  // Сбрасываем счетчик волны
             }
         }
 
