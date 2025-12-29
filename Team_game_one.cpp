@@ -317,12 +317,22 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     MyText score2_text("myfonts/arial_bolditalicmt.ttf", "Score:", 28);
     score2_text.setVisible(true);
     score2_text.setColor(Color::Blue);
-    score2_text.setPosition((mysettings.width - 200)*0.9, 0);
+    score2_text.setPosition((mysettings.width - 200)*0.85, 0);
 
     MyText score2_value("myfonts/arialmt.ttf", "0", 24);
     score2_value.setVisible(true);
     score2_value.setColor(Color::Blue);
-    score2_value.setPosition((mysettings.width - 200) * 0.9+100, 0);
+    score2_value.setPosition((mysettings.width - 200) * 0.85+100, 0);
+
+    MyText player_Boost_table("myfonts/arialmt.ttf", "", 24);
+    player_Boost_table.setVisible(true);
+    player_Boost_table.setColor(Color::Red);
+    player_Boost_table.setPosition((mysettings.width - 200) * 0.1 + 150, 0);
+
+    MyText enemy_Boost_table("myfonts/arialmt.ttf", "", 24);
+    enemy_Boost_table.setVisible(true);
+    enemy_Boost_table.setColor(Color::Blue);
+    enemy_Boost_table.setPosition((mysettings.width - 200) * 0.85 + 150, 0);
     
 
     /*===== пули =====*/
@@ -363,7 +373,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     }
 
     bool gameRun = true;
-    uint8_t speed = player.speed;
+    uint8_t speed = player.speed;   //для сброса
 
     /*=== таймеры ===*/
     const uint8_t resetMIN_const = 3;
@@ -388,40 +398,40 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
         /* =================== движение 1 ===================*/
         if (Keyboard::isKeyPressed(Keyboard::A)) {
-            player.move(-speed, 0);
-            player_circle.move(-speed, 0);
+            player.move(-player.speed, 0);
+            player_circle.move(-player.speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::D)) {
-            player.move(speed, 0);
-            player_circle.move(speed, 0);
+            player.move(player.speed, 0);
+            player_circle.move(player.speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::W)) {
-            player.move(0, -speed);
-            player_circle.move(0, -speed);
+            player.move(0, -player.speed);
+            player_circle.move(0, -player.speed);
         }
         if (Keyboard::isKeyPressed(Keyboard::S)) {
-            player.move(0, speed);
-            player_circle.move(0, speed);
+            player.move(0, player.speed);
+            player_circle.move(0, player.speed);
         }
         /* =================== движение 1 ===================*/
 
 
         /* =================== движение 2 ===================*/
         if (Keyboard::isKeyPressed(Keyboard::J)) {
-            enemy.move(-speed, 0);
-            enemy_circle.move(-speed, 0);
+            enemy.move(-enemy.speed, 0);
+            enemy_circle.move(-enemy.speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::L)) {
-            enemy.move(speed, 0);
-            enemy_circle.move(speed, 0);
+            enemy.move(enemy.speed, 0);
+            enemy_circle.move(enemy.speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::I)) {
-            enemy.move(0, -speed);
-            enemy_circle.move(0, -speed);
+            enemy.move(0, -enemy.speed);
+            enemy_circle.move(0, -enemy.speed);
         }
         if (Keyboard::isKeyPressed(Keyboard::K)) {
-            enemy.move(0, speed);
-            enemy_circle.move(0, speed);
+            enemy.move(0, enemy.speed);
+            enemy_circle.move(0, enemy.speed);
         }
         /* =================== движение 2 ===================*/
 
@@ -467,8 +477,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             /*============ пуля попала ============*/
         if (gun1.checkDestroy(enemy.x_pos, enemy.y_pos, enemy.size))
         {
-            if (now - resetFirst > resetMIN) {                                      //убираем нечестность
-                resetFirst = now;
+            if ((now - resetEnemy > resetMIN) and !enemyBoost.god) {            //убить не всегда можно
+                resetEnemy = now;
                 enemy.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);        // Сброс врага 
                 enemy.flag = false;
                 enemy_circle.setPosition(teamTwoBaseX - enemy.size, teamTwoBaseY);
@@ -483,8 +493,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         
         if (gun2.checkDestroy(player.x_pos, player.y_pos, player.size))
         {
-            if (now - resetEnemy > resetMIN) {
-                resetEnemy = now;
+            if ((now - resetFirst > resetMIN) and !firstBoost.god) {
+                resetFirst = now;
                 player.set_position(teamOneBaseX, teamOneBaseY);                    // Сброс игрока
                 player.flag = false;
                 player_circle.setPosition(teamOneBaseX, teamOneBaseY);
@@ -531,8 +541,18 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         firstBoost.updateEffects();
         enemyBoost.updateEffects();
 
-        cout << firstBoost.god << firstBoost.shield << firstBoost.superSpeed << endl;
-        cout << enemyBoost.god << enemyBoost.shield << enemyBoost.superSpeed << endl;
+        if (enemyBoost.superSpeed) {
+            enemy.speed = 2 * speed;
+        }
+        else enemy.speed = speed;
+
+        if (firstBoost.superSpeed) {
+            player.speed = 2 * speed;
+        }
+        else player.speed = speed;
+
+        //cout << firstBoost.god << firstBoost.shield << firstBoost.superSpeed << endl;
+        //cout << enemyBoost.god << enemyBoost.shield << enemyBoost.superSpeed << endl;
         
         
         /*============= супер способности =============*/
@@ -545,12 +565,12 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         }
 
         //флаг тащим
-        if (player.flag) {
+        if (player.flag and !enemyBoost.shield) {
             enemyflag.set_position(player.x_pos, player.y_pos);
             enemyflag_circle.setPosition(player.x_pos, player.y_pos);
         }
 
-        if (enemy.flag) {
+        if (enemy.flag and firstBoost.shield) {
             flag.set_position(enemy.x_pos, enemy.y_pos);
             flag_circle.setPosition(enemy.x_pos, enemy.y_pos);
         }
@@ -575,7 +595,10 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             enemy.flag = false;
         }
 
-        
+        player_Boost_table.setString(firstBoost.UI_active_mode());
+        enemy_Boost_table.setString(enemyBoost.UI_active_mode());
+
+
         /* победа и очки */
         if (player.score >= max_score_for_win) { winPlayerScreen("PLAYER 1", window, mysettings); gameRun = false; }
         if (enemy.score >= max_score_for_win) { winPlayerScreen("PLAYER 2", window, mysettings); gameRun = false; }
@@ -597,6 +620,9 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         score2_text.draw(window);
         score2_value.setString(to_string(enemy.score));
         score2_value.draw(window);
+
+        player_Boost_table.draw(window);
+        enemy_Boost_table.draw(window);
         
 
         //пули, обработка

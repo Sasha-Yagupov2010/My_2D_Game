@@ -132,3 +132,10 @@ bool PlayerBoost::canActivateNewEffect() const {
 
     return true;
 }
+
+std::string PlayerBoost::UI_active_mode() {
+    if (god)return "god";
+    else if (shield) return "shield";
+    else if (superSpeed) return "speed";
+    return "";
+}

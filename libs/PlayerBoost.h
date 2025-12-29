@@ -54,6 +54,8 @@ public:
     bool isShield_On() const { return shield; }
     bool isSpeed_On() const { return superSpeed; }
 
+    std::string UI_active_mode();
+
 };
 
 #endif // PLAYERBOOST_H
