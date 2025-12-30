@@ -633,15 +633,22 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     }
 }
 
+int randomInt(int min, int max) {
+    return min + rand() % (max - min + 1);
+}
+
 void singleGame(RenderWindow& window, Settings& mysettings) {
     //для каждой игры свой игрок и 
-    const uint8_t mindist_to_flag = 12;
+    uint8_t mindist_to_flag = mysettings.minDistToFlag;
 
     Player player;
     Flag flag;
 
-    Player enemy;
-    Flag enemyflag;
+    Player bot;
+    Flag botflag;
+
+    PlayerBoost firstBoost;
+    PlayerBoost botBoost;
 
     uint16_t percent_of_resizing = (mysettings.height / 400 * 100);
 
@@ -652,9 +659,11 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
     float teamTwoBaseX = mysettings.width;
     float teamTwoBaseY = mysettings.height / 2;
 
+    int  max_score_for_win = mysettings.scoreForWin;
+
     /*============================ основной игрок =============================*/
     // игрок
-    player.size = percent_of_resizing *player.size/100;
+    player.size = percent_of_resizing * player.size / 100;
     player.speed = percent_of_resizing * player.speed / 100;
     //float size = player.size; 
 
@@ -676,145 +685,418 @@ void singleGame(RenderWindow& window, Settings& mysettings) {
     flag_circle.setPosition(flag.x_pos, flag.y_pos);
     flag_circle.setFillColor(Color::Green);
     flag_circle.setOutlineColor(Color::Red);
-    flag_circle.setOutlineThickness(flag.size/7);
+    flag_circle.setOutlineThickness(flag.size / 7);
     /*=========================================================*/
 
     /*============================ второстепенный игрок =============================*/
     // игрок
-    enemy.size = percent_of_resizing * enemy.size / 100;
-    enemy.speed = percent_of_resizing * enemy.speed / 100;
+    bot.size = percent_of_resizing * bot.size / 100;
+    bot.speed = percent_of_resizing * bot.speed / 100;
     //float size = player.size; 
 
-    CircleShape enemy_circle(enemy.size / 2);
-    enemy.set_position(teamTwoBaseX -enemy.size, teamTwoBaseY);
+    CircleShape bot_circle(bot.size / 2);
+    bot.set_position(teamTwoBaseX - bot.size, teamTwoBaseY);
 
-    enemy_circle.setPosition(enemy.x_pos, enemy.y_pos);
-    enemy_circle.setFillColor(Color::Blue);
-    enemy_circle.setOutlineColor(Color::White);
-    enemy_circle.setOutlineThickness(enemy.size / 14);
+    bot_circle.setPosition(bot.x_pos, bot.y_pos);
+    bot_circle.setFillColor(Color::Blue);
+    bot_circle.setOutlineColor(Color::White);
+    bot_circle.setOutlineThickness(bot.size / 14);
 
 
     // флажок
-    enemyflag.size = percent_of_resizing * enemyflag.size / 100;
+    botflag.size = percent_of_resizing * botflag.size / 100;
 
-    CircleShape enemyflag_circle(enemyflag.size / 2);
-    enemyflag.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);
+    CircleShape botflag_circle(botflag.size / 2);
+    botflag.set_position(teamTwoBaseX - bot.size, teamTwoBaseY);
 
-    enemyflag_circle.setPosition(enemyflag.x_pos, enemyflag.y_pos);
-    enemyflag_circle.setFillColor(Color::Green);
-    enemyflag_circle.setOutlineColor(Color::Blue);
-    enemyflag_circle.setOutlineThickness(enemyflag.size / 7);
+    botflag_circle.setPosition(botflag.x_pos, botflag.y_pos);
+    botflag_circle.setFillColor(Color::Green);
+    botflag_circle.setOutlineColor(Color::Blue);
+    botflag_circle.setOutlineThickness(botflag.size / 7);
     /*=========================================================*/
 
     //текстовые блоки
     MyText score1_text("myfonts/arial_bolditalicmt.ttf", "Score:", 28);
     score1_text.setVisible(true);
     score1_text.setColor(Color::Red);
-    score1_text.setPosition((mysettings.width - 200)*0.1, 0);
+    score1_text.setPosition((mysettings.width - 200) * 0.1, 0);
 
-    MyText score1_value("myfonts/arialmt.ttf","0",24);
+    MyText score1_value("myfonts/arialmt.ttf", "0", 24);
     score1_value.setVisible(true);
     score1_value.setColor(Color::Red);
-    score1_value.setPosition((mysettings.width - 200)*0.1 + 100, 0);
+    score1_value.setPosition((mysettings.width - 200) * 0.1 + 100, 0);
+
+    MyText score2_text("myfonts/arial_bolditalicmt.ttf", "Score:", 28);
+    score2_text.setVisible(true);
+    score2_text.setColor(Color::Blue);
+    score2_text.setPosition((mysettings.width - 200) * 0.85, 0);
+
+    MyText score2_value("myfonts/arialmt.ttf", "0", 24);
+    score2_value.setVisible(true);
+    score2_value.setColor(Color::Blue);
+    score2_value.setPosition((mysettings.width - 200) * 0.85 + 100, 0);
+
+    MyText player_Boost_table("myfonts/arialmt.ttf", "", 24);
+    player_Boost_table.setVisible(true);
+    player_Boost_table.setColor(Color::Red);
+    player_Boost_table.setPosition((mysettings.width - 200) * 0.1 + 150, 0);
+
+    MyText bot_Boost_table("myfonts/arialmt.ttf", "", 24);
+    bot_Boost_table.setVisible(true);
+    bot_Boost_table.setColor(Color::Blue);
+    bot_Boost_table.setPosition((mysettings.width - 200) * 0.85 + 150, 0);
 
 
+    /*===== пули =====*/
+    const uint8_t shoot_speed = 4;
+    const uint8_t shoot_ball_size = percent_of_resizing * 5 / 100;
 
+    //первая
+    ShootGun gun1(15, 15);
+    gun1.setPos(player.x_pos, player.y_pos);
+    gun1.visible = false;
+    gun1.resetTarget();
+
+    CircleShape gun1_circle(shoot_ball_size);
+    gun1_circle.setFillColor(Color::White);
+
+
+    //вторая
+    ShootGun gun2(15, 15);
+    gun2.setPos(bot.x_pos, bot.y_pos);
+    gun2.visible = false;
+    gun2.resetTarget();
+
+    CircleShape gun2_circle(shoot_ball_size);
+    gun2_circle.setFillColor(Color::White);
+    /*===== пули =====*/
+
+    string mapname = selectMapMenu(window, mysettings);
+    string map_path = "maps/" + mapname;
     // Автоматический расчет размера тайлов относительно экрана
-    const int mapWidthTiles = 24;   // количество тайлов по ширине
-    const int mapHeightTiles = 16;  // количество тайлов по высоте
-
-    
+    const int mapWidthTiles = 24;                                       // количество тайлов по ширине
+    const int mapHeightTiles = 16;                                      // количество тайлов по высоте
     int tileSize = min(mysettings.width / mapWidthTiles, mysettings.height / mapHeightTiles);
 
-    GameMap gameMap(mapWidthTiles, mapHeightTiles, tileSize);
+    GameMap gameMap(mapWidthTiles, mapHeightTiles, tileSize);           //поле
 
-    if (!gameMap.loadFromFile("maps/fastrunner.txt", Color::White)) {
-        cout << "error: map not loaded!"<<endl;
+    if (!gameMap.loadFromFile(map_path, Color::White)) {
+        cout << "error: map not loaded!" << endl;
     }
 
     bool gameRun = true;
-    uint8_t speed = player.speed;
+    uint8_t speed = player.speed;   //для сброса
+
+    /*=== таймеры ===*/
+    const uint8_t resetMIN_const = 3;
+    auto resetMIN = chrono::seconds(resetMIN_const);
+    auto now = steady_clock::now();
+    steady_clock::time_point resetFirst;
+    steady_clock::time_point resetbot;
+
+    resetFirst = now - resetMIN;;
+    resetbot = now - resetMIN;;
 
     while (gameRun)
     {
+        now = steady_clock::now();
+
         // Сохраняем старую позицию для отката при коллизии
         float oldX = player.x_pos;
         float oldY = player.y_pos;
 
-        if (Keyboard::isKeyPressed(Keyboard::Left)) {
-            player.move(-speed, 0);
-            player_circle.move(-speed, 0);
+
+        /* =================== движение 1 ===================*/
+        if (Keyboard::isKeyPressed(Keyboard::A)) {
+            player.move(-player.speed, 0);
+            player_circle.move(-player.speed, 0);
         }
-        if (Keyboard::isKeyPressed(Keyboard::Right)) {
-            player.move(speed, 0);
-            player_circle.move(speed, 0);
+        if (Keyboard::isKeyPressed(Keyboard::D)) {
+            player.move(player.speed, 0);
+            player_circle.move(player.speed, 0);
         }
-        if (Keyboard::isKeyPressed(Keyboard::Up)) {
-            player.move(0, -speed);
-            player_circle.move(0, -speed);
+        if (Keyboard::isKeyPressed(Keyboard::W)) {
+            player.move(0, -player.speed);
+            player_circle.move(0, -player.speed);
         }
-        if (Keyboard::isKeyPressed(Keyboard::Down)) {
-            player.move(0, speed);
-            player_circle.move(0, speed);
+        if (Keyboard::isKeyPressed(Keyboard::S)) {
+            player.move(0, player.speed);
+            player_circle.move(0, player.speed);
         }
 
+
+        /* ============ захват ============*/
+        int distance;
         if (Keyboard::isKeyPressed(Keyboard::E)) {
-            int distance = calc_distance(enemyflag.x_pos, player.x_pos, enemyflag.y_pos, player.y_pos);
+            distance = calc_distance(botflag.x_pos, player.x_pos, botflag.y_pos, player.y_pos);
+            player.flag = (distance < mindist_to_flag);
+        }
 
-            if (distance < mindist_to_flag) player.flag = true; 
-            else player.flag = false;
+        if (Keyboard::isKeyPressed(Keyboard::Q)) {
+            if (gun1.count and !gun1.visible)
+            {
+                gun1.setPos(player.x_pos, player.y_pos);
+                gun1.visible = true;
+                gun1.setTarget(bot.x_pos, bot.y_pos);
+                gun1.count -= 1;
+            }
+        }
+
+        /* ============ стрельба ============*/
+
+
+            /*============ пуля попала ============*/
+        if (gun1.checkDestroy(bot.x_pos, bot.y_pos, bot.size))
+        {
+            if ((now - resetbot > resetMIN) and !botBoost.god) {            //убить не всегда можно
+                resetbot = now;
+                bot.set_position(teamTwoBaseX - bot.size, teamTwoBaseY);        // Сброс врага 
+                bot.flag = false;
+                bot_circle.setPosition(teamTwoBaseX - bot.size, teamTwoBaseY);
+                flag.set_position(teamOneBaseX, teamOneBaseY);                      // Сброс флага врага (если он его нес)
+                flag_circle.setPosition(teamOneBaseX, teamOneBaseY);                // Пополнение патронов игроку (награда за попадание)
+                gun2.count = gun2.max_count;
+            }
+            // Игрок пополнил патроны
         }
 
 
-        // Проверяем коллизии
+
+        if (gun2.checkDestroy(player.x_pos, player.y_pos, player.size))
+        {
+            if ((now - resetFirst > resetMIN) and !firstBoost.god) {
+                resetFirst = now;
+                player.set_position(teamOneBaseX, teamOneBaseY);                    // Сброс игрока
+                player.flag = false;
+                player_circle.setPosition(teamOneBaseX, teamOneBaseY);
+                botflag.set_position(teamTwoBaseX - botflag.size, teamTwoBaseY);// Сброс флага игрока (если он его нес)
+                botflag_circle.setPosition(teamTwoBaseX - botflag.size, teamTwoBaseY);
+                gun1.count = gun1.max_count;
+            }
+            // Враг пополнил патроны
+        }
+        /*============ пуля попала ============*/
+
+
+        /* ============ Проверяем коллизии ============*/
         if (gameMap.checkCollision(player.x_pos, player.y_pos, player.size) ||
             player.x_pos < 0 || player.x_pos > mysettings.width - player.size ||
             player.y_pos < 0 || player.y_pos > mysettings.height - player.size) {
 
-            // Откатываем позицию
-            player.set_position(oldX, oldY);
+            player.set_position(oldX, oldY);                                // Откатываем позицию
             player_circle.setPosition(oldX, oldY);
         }
-        //exit to menu
+        /* ============ Проверяем коллизии ============*/
+
+        if (gameMap.checkCollision(gun1.startX, gun1.startY, shoot_ball_size)) {
+            gun1.visible = false;
+        }
+
+        if (gameMap.checkCollision(gun2.startX, gun2.startY, shoot_ball_size)) {
+            gun2.visible = false;
+        }
+
+        botBoost.activateRandomEffect();
+        firstBoost.activateRandomEffect();
+
+        firstBoost.updateEffects();
+        botBoost.updateEffects();
+
+        if (botBoost.superSpeed) {
+            bot.speed = 2 * speed;
+        }
+        else bot.speed = speed;
+
+        if (firstBoost.superSpeed) {
+            player.speed = 2 * speed;
+        }
+        else player.speed = speed;
+
+
+
+        //====================================================================bot logic
+
+        int targetX, targetY;
+        int smalltargX, smalltargY;
+        static int waveCounter = 0; // Счетчик для волнообразного движения
+        const int WAVE_AMPLITUDE = 150; // Амплитуда волны по Y (увеличена)
+        const int WAVE_FREQUENCY = 50; // Частота волны
+
+        // Перемещение бота
+        if (bot.flag) {
+            // Если несем флаг - идем на базу
+            targetX = teamTwoBaseX;
+            targetY = teamTwoBaseY;
+        }
+        else {
+            // Если не несем флаг - идем к флагу
+            targetX = flag.x_pos;
+            targetY = flag.y_pos;
+        }
+
+        // Создаем волнообразное движение с увеличенной амплитудой
+        waveCounter++;
+        if (waveCounter > 360) waveCounter = 0;
+
+        // Вычисляем синусоидальное отклонение по Y
+        float waveOffset = sin(waveCounter * 3.14159 / WAVE_FREQUENCY) * WAVE_AMPLITUDE;
+
+        // Основное направление к цели
+        float dirX = targetX - bot.x_pos;
+        float dirY = targetY - bot.y_pos;
+        float distanceToTarget = sqrt(dirX * dirX + dirY * dirY);
+
+        // Нормализуем направление
+        if (distanceToTarget > 0) {
+            dirX /= distanceToTarget;
+            dirY /= distanceToTarget;
+        }
+
+        // Создаем промежуточную цель с волнообразным отклонением
+        smalltargX = bot.x_pos + dirX * 100; // На 100 пикселей вперед по направлению
+        smalltargY = bot.y_pos + dirY * 100 + waveOffset;
+
+        // Ограничиваем Y в пределах карты
+        if (smalltargY < bot.size) smalltargY = bot.size;
+        if (smalltargY > mysettings.height - bot.size) smalltargY = mysettings.height - bot.size;
+
+        // Если близко к основной цели, идем прямо к ней
+        if (distanceToTarget < 200) {
+            smalltargX = targetX;
+            smalltargY = targetY;
+        }
+
+        //cout << "Bot: " << bot.x_pos << ", " << bot.y_pos;
+        //cout << " | Target: " << smalltargX << ", " << smalltargY << endl;
+
+        // Вычисляем расстояние до промежуточной цели
+        float dx = smalltargX - bot.x_pos;
+        float dy = smalltargY - bot.y_pos;
+        distance = sqrt(dx * dx + dy * dy);
+
+        // Если не достигли цели
+        if (distance > bot.size / 2) { // Уменьшил порог для более точного движения
+            // Вычисляем шаг с учетом скорости
+            float stepX = (dx / distance) * bot.speed;
+            float stepY = (dy / distance) * bot.speed;
+
+            // Делаем шаг
+            bot.move(stepX, stepY);
+
+            // Проверяем границы карты
+            if (bot.x_pos < 0) bot.x_pos = 0;
+            if (bot.x_pos > mysettings.width - bot.size) bot.x_pos = mysettings.width - bot.size;
+            if (bot.y_pos < 0) bot.y_pos = 0;
+            if (bot.y_pos > mysettings.height - bot.size) bot.y_pos = mysettings.height - bot.size;
+        }
+        else {
+            // Достигли цели
+            if (!bot.flag && distanceToTarget <= bot.size) {
+                bot.flag = true;  // Подобрали флаг
+                waveCounter = 0;  // Сбрасываем счетчик волны
+            }
+            else if (bot.flag && distanceToTarget <= bot.size) {
+                bot.flag = false;  // Доставили флаг на базу
+                waveCounter = 0;  // Сбрасываем счетчик волны
+            }
+        }
+
+        // Проверяем расстояние до игрока
+        float playerDx = player.x_pos - bot.x_pos;
+        float playerDy = player.y_pos - bot.y_pos;
+        float playerDistance = sqrt(playerDx * playerDx + playerDy * playerDy);
+
+        if (playerDistance < 200) {
+            // Заглушка для стрельбы
+            // shoot();  // Разкомментируй, когда добавишь функцию стрельбы
+        }
+
+        bot_circle.setPosition(bot.x_pos, bot.y_pos);
+        gun2.setPos(bot.x_pos, bot.y_pos);
+        gun2_circle.setPosition(bot.x_pos, bot.y_pos);
+
+        //====================================================================bot logic
+
+
+        //выходим в меню
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
             player.set_position(0, 0);
+            bot.set_position(0, 0);
             gameRun = false;
         }
 
-        //move flag
-        if (player.flag) {
-            enemyflag.set_position(player.x_pos, player.y_pos);
-            enemyflag_circle.setPosition(enemyflag.x_pos, enemyflag.y_pos);
+
+        /*=================standart================*/
+        //флаг тащим
+        if (player.flag and !botBoost.shield) {
+            botflag.set_position(player.x_pos, player.y_pos);
+            botflag_circle.setPosition(player.x_pos, player.y_pos);
         }
 
-        int distance = calc_distance(enemyflag.x_pos, teamOneBaseX, enemyflag.y_pos, teamOneBaseY);
+        if (bot.flag and !firstBoost.shield) {
+            flag.set_position(bot.x_pos, bot.y_pos);
+            flag_circle.setPosition(bot.x_pos, bot.y_pos);
+        }
+
+
+        distance = calc_distance(botflag.x_pos, teamOneBaseX, botflag.y_pos, teamOneBaseY);
         if (distance < mindist_to_flag) {
-            enemyflag.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);
-            enemyflag_circle.setPosition(teamTwoBaseX - enemy.size, teamTwoBaseY);
+            botflag.set_position(teamTwoBaseX - botflag.size, teamTwoBaseY);
+            botflag_circle.setPosition(teamTwoBaseX - botflag.size, teamTwoBaseY);
 
             player.score += 1;
             player.flag = false;
         }
 
 
-        window.clear();
+        distance = calc_distance(flag.x_pos, teamTwoBaseX, flag.y_pos, teamTwoBaseY);
+        if (distance < mindist_to_flag + flag.size) {
+            flag.set_position(teamOneBaseX, teamOneBaseY);
+            flag_circle.setPosition(teamOneBaseX, teamOneBaseY);
 
+            bot.score += 1;
+            bot.flag = false;
+        }
+
+        player_Boost_table.setString(firstBoost.UI_active_mode());
+        bot_Boost_table.setString(botBoost.UI_active_mode());
+
+
+        /* победа и очки */
+        if (player.score >= max_score_for_win) { winPlayerScreen("PLAYER 1", window, mysettings); gameRun = false; }
+        if (bot.score >= max_score_for_win) { winPlayerScreen("PLAYER 2", window, mysettings); gameRun = false; }
+
+        window.clear();
 
         gameMap.draw(window);
         window.draw(player_circle);
-        window.draw(enemy_circle);
-
-        window.draw(enemyflag_circle);
         window.draw(flag_circle);
+
+        window.draw(bot_circle);
+        window.draw(botflag_circle);
+
 
         score1_text.draw(window);
         score1_value.setString(to_string(player.score));
         score1_value.draw(window);
 
+        score2_text.draw(window);
+        score2_value.setString(to_string(bot.score));
+        score2_value.draw(window);
+
+        player_Boost_table.draw(window);
+        bot_Boost_table.draw(window);
+
+
+        //пули, обработка
+        run_shoots_logic(gun1, window, gun1_circle, shoot_speed);
+        run_shoots_logic(gun2, window, gun2_circle, shoot_speed);
 
         window.display();
     }
 }
+
+
 
 int main()
 {
