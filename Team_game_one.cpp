@@ -240,12 +240,13 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     playerImage.loadFromFile("textures/player.png");
     playerTexture.loadFromImage(playerImage);
     playerSprite.setTexture(playerTexture);
+    playerSprite.setPosition(0, 0);
 
     Sprite enemySprite;
     enemyImage.loadFromFile("textures/enemy.png");
     enemyTexture.loadFromImage(enemyImage);
     enemySprite.setTexture(enemyTexture);
-
+    enemySprite.setPosition(0, 0);
 
 
     //для каждой игры свой игрок и 
@@ -276,8 +277,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     player.size = percent_of_resizing * player.size / 100;
     player.speed = percent_of_resizing * player.speed / 100;
 
-    playerSprite.setScale(percent_of_resizing * 0.5/4, percent_of_resizing * 0.5 / 4);
-    enemySprite.setScale(percent_of_resizing * 0.5 / 4, percent_of_resizing * 0.5 / 4);
+    playerSprite.setScale(0.25f,0.25f);
+    enemySprite.setScale(0.25f, 0.25f);
 
     //float size = player.size; 
 
@@ -288,6 +289,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     player_circle.setFillColor(Color::Red);
     player_circle.setOutlineColor(Color::White);
     player_circle.setOutlineThickness(player.size / 14);
+    playerSprite.setPosition(player.x_pos, player.y_pos);
+    
 
 
     // флажок
@@ -315,6 +318,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     enemy_circle.setFillColor(Color::Blue);
     enemy_circle.setOutlineColor(Color::White);
     enemy_circle.setOutlineThickness(enemy.size / 14);
+    enemySprite.setPosition(enemy.x_pos, enemy.y_pos);
 
 
     // флажок
@@ -426,18 +430,22 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         if (Keyboard::isKeyPressed(Keyboard::A)) {
             player.move(-player.speed, 0);
             player_circle.move(-player.speed, 0);
+            playerSprite.move(-player.speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::D)) {
             player.move(player.speed, 0);
             player_circle.move(player.speed, 0);
+            playerSprite.move(player.speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::W)) {
             player.move(0, -player.speed);
             player_circle.move(0, -player.speed);
+            playerSprite.move(0, -player.speed);
         }
         if (Keyboard::isKeyPressed(Keyboard::S)) {
             player.move(0, player.speed);
             player_circle.move(0, player.speed);
+            playerSprite.move(0, player.speed);
         }
         /* =================== движение 1 ===================*/
 
@@ -446,18 +454,22 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         if (Keyboard::isKeyPressed(Keyboard::J)) {
             enemy.move(-enemy.speed, 0);
             enemy_circle.move(-enemy.speed, 0);
+            enemySprite.move(-enemy.speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::L)) {
             enemy.move(enemy.speed, 0);
             enemy_circle.move(enemy.speed, 0);
+            enemySprite.move(enemy.speed, 0);
         }
         if (Keyboard::isKeyPressed(Keyboard::I)) {
             enemy.move(0, -enemy.speed);
             enemy_circle.move(0, -enemy.speed);
+            enemySprite.move(0, -enemy.speed);
         }
         if (Keyboard::isKeyPressed(Keyboard::K)) {
             enemy.move(0, enemy.speed);
             enemy_circle.move(0, enemy.speed);
+            enemySprite.move(0, enemy.speed);
         }
         /* =================== движение 2 ===================*/
 
@@ -508,6 +520,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
                 enemy.set_position(teamTwoBaseX - enemy.size, teamTwoBaseY);        // Сброс врага 
                 enemy.flag = false;
                 enemy_circle.setPosition(teamTwoBaseX - enemy.size, teamTwoBaseY);
+                enemySprite.setPosition(teamTwoBaseX - enemy.size, teamTwoBaseY);
                 flag.set_position(teamOneBaseX, teamOneBaseY);                      // Сброс флага врага (если он его нес)
                 flag_circle.setPosition(teamOneBaseX, teamOneBaseY);                // Пополнение патронов игроку (награда за попадание)
                 gun2.count = gun2.max_count;
@@ -524,6 +537,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
                 player.set_position(teamOneBaseX, teamOneBaseY);                    // Сброс игрока
                 player.flag = false;
                 player_circle.setPosition(teamOneBaseX, teamOneBaseY);
+                playerSprite.setPosition(teamOneBaseX, teamOneBaseY);
                 enemyflag.set_position(teamTwoBaseX - enemyflag.size, teamTwoBaseY);// Сброс флага игрока (если он его нес)
                 enemyflag_circle.setPosition(teamTwoBaseX - enemyflag.size, teamTwoBaseY);
                 gun1.count = gun1.max_count;
@@ -540,6 +554,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
             
                 player.set_position(oldX, oldY);                                // Откатываем позицию
                 player_circle.setPosition(oldX, oldY);
+                playerSprite.setPosition(oldX, oldY);
             }
 
         if (gameMap.checkCollision(enemy.x_pos, enemy.y_pos, enemy.size) ||
@@ -548,6 +563,7 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
                 enemy.set_position(oldX2, oldY2);                               // Откатываем позицию
                 enemy_circle.setPosition(oldX2, oldY2);
+                enemySprite.setPosition(oldX2, oldY2);
             }
 
 
@@ -634,10 +650,12 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
 
 
         gameMap.draw(window);
-        window.draw(player_circle);
+        //window.draw(player_circle);
+        window.draw(playerSprite);
         window.draw(flag_circle);
 
-        window.draw(enemy_circle);
+        //window.draw(enemy_circle);
+        window.draw(enemySprite);
         window.draw(enemyflag_circle);
         
 
