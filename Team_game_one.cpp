@@ -226,6 +226,28 @@ void winPlayerScreen(string winner, RenderWindow& window, Settings& mysettings)
 }//    winPlayerScreen("fist", window, mysettings);
 
 void splitGame(RenderWindow& window, Settings& mysettings) {
+
+    Image fonImage, playerImage,enemyImage;
+    Texture fonTexture, playerTexture, enemyTexture;
+
+    Sprite fonSprite;
+    fonImage.loadFromFile("textures/fon.png");
+    fonTexture.loadFromImage(fonImage);
+    fonSprite.setTexture(fonTexture);
+    fonSprite.setPosition(0, 0);
+
+    Sprite playerSprite;
+    playerImage.loadFromFile("textures/player.png");
+    playerTexture.loadFromImage(playerImage);
+    playerSprite.setTexture(playerTexture);
+
+    Sprite enemySprite;
+    enemyImage.loadFromFile("textures/enemy.png");
+    enemyTexture.loadFromImage(enemyImage);
+    enemySprite.setTexture(enemyTexture);
+
+
+
     //для каждой игры свой игрок и 
     uint8_t mindist_to_flag = mysettings.minDistToFlag;
 
@@ -253,6 +275,10 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     // игрок
     player.size = percent_of_resizing * player.size / 100;
     player.speed = percent_of_resizing * player.speed / 100;
+
+    playerSprite.setScale(percent_of_resizing * 0.5/4, percent_of_resizing * 0.5 / 4);
+    enemySprite.setScale(percent_of_resizing * 0.5 / 4, percent_of_resizing * 0.5 / 4);
+
     //float size = player.size; 
 
     CircleShape player_circle(player.size / 2);
@@ -604,6 +630,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
         if (enemy.score >= max_score_for_win) { winPlayerScreen("PLAYER 2", window, mysettings); gameRun = false; }
 
         window.clear();
+        window.draw(fonSprite);
+
 
         gameMap.draw(window);
         window.draw(player_circle);
@@ -1118,7 +1146,7 @@ int main()
     window.setFramerateLimit(mysettings.fps);
     /* =============================== */
   
-
+  
     int gameStarted = 0;
 
     while (window.isOpen())
