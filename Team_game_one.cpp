@@ -277,8 +277,8 @@ void splitGame(RenderWindow& window, Settings& mysettings) {
     player.size = percent_of_resizing * player.size / 100;
     player.speed = percent_of_resizing * player.speed / 100;
 
-    playerSprite.setScale(0.25f,0.25f);
-    enemySprite.setScale(0.25f, 0.25f);
+    playerSprite.setScale(percent_of_resizing / 100*0.125f, percent_of_resizing / 100*0.125f);
+    enemySprite.setScale(percent_of_resizing / 100*0.125f, percent_of_resizing / 100*0.125f);
 
     //float size = player.size; 
 
